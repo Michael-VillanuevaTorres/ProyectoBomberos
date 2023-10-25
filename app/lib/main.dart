@@ -1,4 +1,5 @@
 import 'package:app/pages/menu.dart';
+import 'package:app/pages/register.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -12,6 +13,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      // Definimos la ruta inicial
+      initialRoute: '/',
+      // Definimos la lista de rutas en nuestra aplicación
+      routes: <String, WidgetBuilder>{
+        //'/': (BuildContext context) => MenuPage(),
+        'registers': (BuildContext context) => tableRegister(),
+      },
       title: 'Flutter Demo',
       theme: ThemeData(
         // This is the theme of your application.

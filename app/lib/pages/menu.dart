@@ -1,8 +1,12 @@
 import 'package:app/pages/activos.dart';
+import 'package:app/pages/forms.dart';
 import 'package:flutter/material.dart';
 import 'package:app/utils/colors.dart';
 import 'package:app/pages/statistics.dart';
 import 'package:app/pages/widget.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:fluttertoast/fluttertoast.dart';
 
 class MenuPage extends StatefulWidget {
   @override
@@ -10,13 +14,14 @@ class MenuPage extends StatefulWidget {
 }
 
 class _MenuPageState extends State<MenuPage> {
-  int _currentIndex = 0;
+  int _currentIndex = 1;
 
   final List<Widget> _pages = [
     // Aquí debes agregar las 3 páginas diferentes para cada opción de navegación
-    available(),
+    forms(),
     home(),
     statistics(),
+    available(),
     //Container(color: Colors.green),
   ];
 
@@ -108,6 +113,40 @@ class home extends StatefulWidget {
 }
 
 class _homeState extends State<home> {
+  Future<void> setTime(int id_user) async {
+    try {
+      //await Future.delayed(const Duration(seconds: 5));
+      final response = await http.post(
+        Uri.parse('http://127.0.0.1:5000/api/v1/fecha'),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(<String, int>{'id_user': id_user}),
+      );
+      if (response.statusCode == 200) {
+        Fluttertoast.showToast(
+            msg: "Hora Registrada con exito",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      } else {
+        Fluttertoast.showToast(
+            msg: "Error al registrar hora",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -115,12 +154,25 @@ class _homeState extends State<home> {
         children: [
           SizedBox(height: MediaQuery.of(context).size.height * 0.1),
           buttonMenu(
-              color: Colors.lightGreen, text: "Entrada", icon: Icons.login),
-          SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-          buttonMenu(color: Colors.red, text: "Salida", icon: Icons.logout),
+            color: Colors.lightGreen,
+            text: "Entrada",
+            icon: Icons.login,
+            setTime: setTime,
+          ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.1),
           buttonMenu(
-              color: Colors.orange, text: "Emergencia", icon: Icons.warning),
+            color: Colors.red,
+            text: "Salida",
+            icon: Icons.logout,
+            setTime: setTime,
+          ),
+          SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+          buttonMenu(
+            color: Colors.orange,
+            text: "Emergencia",
+            icon: Icons.warning,
+            setTime: setTime,
+          ),
         ],
       ),
     );
