@@ -38,6 +38,7 @@ dependencies:
   http: ^1.1.0
   fluttertoast: ^8.2.2
   dropdown_button2: ^2.3.9
+  auto_size_text: ^3.0.0
 
 dev_dependencies:
   flutter_test:
