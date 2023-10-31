@@ -21,14 +21,14 @@ class _MenuPageState extends State<MenuPage> {
     forms(),
     home(),
     statistics(),
-    available(),
+    //available(),
     //Container(color: Colors.green),
   ];
 
   final List<PreferredSizeWidget> _appbar = [
     CustomAppBarAcceso(text: 'Formularios'),
     CustomAppBarAcceso(text: 'Acceso'),
-    CustomAppBarAcceso(text: 'Estadisticas'),
+    CustomAppBarAcceso(text: 'Estadísticas'),
   ];
 
   @override
@@ -37,42 +37,45 @@ class _MenuPageState extends State<MenuPage> {
       backgroundColor: colorBackground,
       appBar: _appbar[_currentIndex],
       /*AppBar(
-        backgroundColor: Colors.black,
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.person, color: Colors.white),
+          backgroundColor: Colors.black,
+          actions: [
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.person, color: Colors.white),
+            ),
+          ],
+          title: const Text(
+            'Acceso',
+            style: TextStyle(color: Colors.white),
           ),
-        ],
-        title: const Text(
-          'Acceso',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),*/
+        ),*/
 
-      body: _pages[_currentIndex],
+      body: WillPopScope(
+        onWillPop: () => Future.value(false),
+        child: _pages[_currentIndex],
+      ),
 
       /*Center(
-        child: Column(
-          children: [
-            SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-            buttonMenu(Colors.lightGreen, "Entrada", Icons.login),
-            SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-            buttonMenu(Colors.red, "Salida", Icons.logout),
-            SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-            buttonMenu(Colors.orange, "Emergencia", Icons.warning),
-          ],
-        ),
-      ),*/
+          child: Column(
+            children: [
+              SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+              buttonMenu(Colors.lightGreen, "Entrada", Icons.login),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+              buttonMenu(Colors.red, "Salida", Icons.logout),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+              buttonMenu(Colors.orange, "Emergencia", Icons.warning),
+            ],
+          ),
+        ),*/
       /*floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Acción a realizar cuando se presiona el botón flotante
-          // Por ejemplo, mostrar un mensaje en la consola
-          print('Botón flotante presionado');
-        },
-        child: Container(child: Icon(Icons.check)), // Icono del botón flotante
-        backgroundColor: Colors.lightGreen, // Color de fondo del botón flotante
-      ),*/
+          onPressed: () {
+            // Acción a realizar cuando se presiona el botón flotante
+            // Por ejemplo, mostrar un mensaje en la consola
+            print('Botón flotante presionado');
+          },
+          child: Container(child: Icon(Icons.check)), // Icono del botón flotante
+          backgroundColor: Colors.lightGreen, // Color de fondo del botón flotante
+        ),*/
 
       //_pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(

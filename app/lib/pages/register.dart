@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:app/pages/widget.dart';
+//import 'package:app/pages/widget.dart';
+
 import 'package:app/utils/colors.dart';
 
 class tableRegister extends StatefulWidget {
@@ -19,13 +20,13 @@ class _tableRegisterState extends State<tableRegister> {
       appBar: AppBar(
         foregroundColor: Colors.white,
         backgroundColor: Colors.black,
-        actions: [
+        /*actions: [
           IconButton(
             onPressed: () {},
             icon: Icon(Icons.person, color: Colors.white),
           ),
-        ],
-        title: Align(
+        ],*/
+        title: const Align(
           alignment: Alignment.centerLeft,
           child: Text(
             "Registros",
@@ -35,55 +36,63 @@ class _tableRegisterState extends State<tableRegister> {
         ),
       ),
       //_appbar[_currentIndex],
-      body: Padding(
-        padding: const EdgeInsets.only(top: 00.0, left: 20.0, right: 20.0),
-        child: SingleChildScrollView(
-          child: Table(
-            border: TableBorder.all(color: Colors.black),
-            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-            children: [
-              TableRow(
-                decoration: BoxDecoration(
-                  color: Colors.grey,
-                ),
-                children: [
-                  TableCell(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text("Ingreso"),
-                    ),
-                  ),
-                  TableCell(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text("Salida"),
-                    ),
-                  ),
-                ],
-              ),
-              ...List.generate(
-                20,
-                (index) => TableRow(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
+          child: SingleChildScrollView(
+            child: Table(
+              border: TableBorder.all(color: Colors.black),
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              children: [
+                const TableRow(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Color.fromARGB(255, 239, 224, 86),
                   ),
                   children: [
                     TableCell(
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: Text("${args[1]['title']}"),
+                        child: Text(
+                          "Ingreso",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                     TableCell(
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: Text("${args[0]['title']}"),
+                        child: Text(
+                          "Salida",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                   ],
                 ),
-              )
-            ],
+                ...List.generate(
+                  20,
+                  (index) => TableRow(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                    ),
+                    children: [
+                      TableCell(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text("${args[1]['title']}"),
+                        ),
+                      ),
+                      TableCell(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text("${args[0]['title']}"),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ), /*AppBar(

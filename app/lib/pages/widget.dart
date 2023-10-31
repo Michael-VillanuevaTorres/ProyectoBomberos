@@ -38,8 +38,11 @@ class _buttonMenuState extends State<buttonMenu> {
               },
             );
           },
-          icon: Icon(widget.icon),
-          label: Text(widget.text)),
+          icon: Icon(widget.icon, color: Colors.white, size: 30),
+          label: Text(
+            widget.text,
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          )),
     );
   }
 }
@@ -54,10 +57,20 @@ class CustomAppBarAcceso extends StatelessWidget
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.black,
+      automaticallyImplyLeading: false,
       actions: [
         IconButton(
+          onPressed: () {
+            Navigator.pushNamed(context, 'actives');
+          },
+          icon: Icon(
+            Icons.people,
+            color: Colors.white,
+          ),
+        ),
+        IconButton(
           onPressed: () {},
-          icon: Icon(Icons.person, color: Colors.white),
+          icon: Icon(Icons.settings, color: Colors.white),
         ),
       ],
       title: Align(
@@ -65,7 +78,7 @@ class CustomAppBarAcceso extends StatelessWidget
         child: Text(
           text,
           textAlign: TextAlign.left,
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.white, fontSize: 23),
         ),
       ),
     );
