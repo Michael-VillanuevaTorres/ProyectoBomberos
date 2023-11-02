@@ -1,9 +1,10 @@
-//import 'dart:convert';
+import 'dart:convert';
+import 'dart:io';
 import 'package:app/utils/colors.dart';
 import 'package:flutter/material.dart';
-//import 'package:app/dtos/accces_token-dart.dart';
-//import 'package:app/utils/globals.dart';
-//import 'package:http/http.dart' as http;
+import 'package:app/token/accces_token-dart.dart';
+import 'package:app/utils/globals.dart';
+import 'package:http/http.dart' as http;
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:app/pages/menu.dart';
 
@@ -18,22 +19,22 @@ class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController loginController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  /*Future<AccessToken>? _futureToken;
 
-  Future<AccessToken> validar(String username, String password) async {
+  Future<AccessToken>? _futureToken;
+
+  Future<AccessToken> validar(String user_name, String password) async {
     final response = await http.post(
-      Uri.parse('https://d1b2-191-125-37-58.ngrok-free.app/api/v1/login'),
+      Uri.parse('http://127.0.0.1:5000/user/login'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(
-          <String, String>{'username': username, 'password': password}),
+          <String, String>{"user_name": user_name, "password": password}),
     );
-
     if (response.statusCode == 200) {
       return AccessToken.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception('Credeciales incorrectas.');
+      throw Exception('Error.');
     }
   }
 
@@ -45,7 +46,7 @@ class _LoginState extends State<Login> {
           Globals.token = snapshot.data!.accessToken;
           WidgetsBinding.instance.addPostFrameCallback((_) =>
               Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const ),
+                  MaterialPageRoute(builder: (context) => MenuPage()),
                   (Route<dynamic> route) => false));
 
           return const Text("Cargando...");
@@ -55,22 +56,28 @@ class _LoginState extends State<Login> {
         return const Text("Cargando...");
       },
     );
-  }*/
+  }
 
-  Widget ingresar() {
+  Widget seccionEnviar(String msg) {
     return Column(
       children: [
         ElevatedButton(
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MenuPage(),
-              ),
-            );
+            if (_formKey.currentState!.validate()) {
+              setState(() {
+                Future.delayed(Duration.zero, () {
+                  _futureToken =
+                      validar(loginController.text, passwordController.text);
+                });
+              });
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Ingrese todos sus datos')));
+            }
           },
           child: const Text('Ingresar'),
         ),
+        Text(msg)
       ],
     );
   }
@@ -166,13 +173,13 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                     Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 16.0),
-                        child: Center(
-                            child: /*(_futureToken == null)
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 16.0),
+                      child: Center(
+                          child: (_futureToken == null)
                               ? seccionEnviar("")
-                              : buildFutureBuilder()),*/
-                                ingresar())),
+                              : buildFutureBuilder()),
+                    ),
                   ],
                 ),
               ),
