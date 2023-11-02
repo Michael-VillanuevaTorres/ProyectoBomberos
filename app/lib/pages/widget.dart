@@ -5,11 +5,13 @@ class buttonMenu extends StatefulWidget {
   final String text;
   final IconData icon;
   final Function setTime;
+  final int type;
   const buttonMenu({
     required this.color,
     required this.text,
     required this.icon,
     required this.setTime,
+    required this.type,
   });
   @override
   State<buttonMenu> createState() => _buttonMenuState();
@@ -34,7 +36,7 @@ class _buttonMenuState extends State<buttonMenu> {
           onPressed: () {
             setState(
               () {
-                widget.setTime(1);
+                widget.setTime(widget.type, 1);
               },
             );
           },

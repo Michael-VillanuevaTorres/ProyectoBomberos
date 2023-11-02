@@ -1,4 +1,3 @@
-import 'package:app/pages/activos.dart';
 import 'package:app/pages/forms.dart';
 import 'package:flutter/material.dart';
 import 'package:app/utils/colors.dart';
@@ -21,8 +20,6 @@ class _MenuPageState extends State<MenuPage> {
     forms(),
     home(),
     statistics(),
-    //available(),
-    //Container(color: Colors.green),
   ];
 
   final List<PreferredSizeWidget> _appbar = [
@@ -54,30 +51,6 @@ class _MenuPageState extends State<MenuPage> {
         onWillPop: () => Future.value(false),
         child: _pages[_currentIndex],
       ),
-
-      /*Center(
-          child: Column(
-            children: [
-              SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-              buttonMenu(Colors.lightGreen, "Entrada", Icons.login),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-              buttonMenu(Colors.red, "Salida", Icons.logout),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-              buttonMenu(Colors.orange, "Emergencia", Icons.warning),
-            ],
-          ),
-        ),*/
-      /*floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // Acción a realizar cuando se presiona el botón flotante
-            // Por ejemplo, mostrar un mensaje en la consola
-            print('Botón flotante presionado');
-          },
-          child: Container(child: Icon(Icons.check)), // Icono del botón flotante
-          backgroundColor: Colors.lightGreen, // Color de fondo del botón flotante
-        ),*/
-
-      //_pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         iconSize: 30,
         //backgroundColor: colorBottonNav,
@@ -116,37 +89,68 @@ class home extends StatefulWidget {
 }
 
 class _homeState extends State<home> {
-  Future<void> setTime(int id_user) async {
+  Future<void> setTime(int type, int idUser) async {
     try {
-      //await Future.delayed(const Duration(seconds: 5));
-      final response = await http.post(
-        Uri.parse('http://127.0.0.1:5000/api/v1/fecha'),
-        headers: <String, String>{
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(<String, int>{'id_user': id_user}),
-      );
-      if (response.statusCode == 200) {
-        Fluttertoast.showToast(
-            msg: "Hora Registrada con exito",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.TOP,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.green,
-            textColor: Colors.white,
-            fontSize: 16.0);
+      if (type == 1) {
+        //await Future.delayed(const Duration(seconds: 5));
+        final response = await http.post(
+          Uri.parse(
+              'http://127.0.0.1:5000/entrytime/'), //Uri.parse('http://127.0.0.1:5000/api/v1/fecha'),
+          headers: <String, String>{
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(<String, int>{'user_id': idUser}),
+        );
+        if (response.statusCode == 200) {
+          Fluttertoast.showToast(
+              msg: "Hora Registrada con exito",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.TOP,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
+              fontSize: 16.0);
+        } else {
+          Fluttertoast.showToast(
+              msg: "Error al ingresar hora de entrada",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.TOP,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0);
+        }
       } else {
-        Fluttertoast.showToast(
-            msg: "Error al registrar hora",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.TOP,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0);
+        final response = await http.post(
+          Uri.parse(
+              'http://127.0.0.1:5000/exittime/'), //Uri.parse('http://127.0.0.1:5000/api/v1/fecha'),
+          headers: <String, String>{
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(<String, int>{'user_id': idUser}),
+        );
+        if (response.statusCode == 200) {
+          Fluttertoast.showToast(
+              msg: "Hora Registrada con exito",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.TOP,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
+              fontSize: 16.0);
+        } else {
+          Fluttertoast.showToast(
+              msg: "Error al ingresar hora de salida",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.TOP,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0);
+        }
       }
     } catch (e) {
-      print(e);
+      throw Exception("Error al ingresar hora");
     }
   }
 
@@ -161,6 +165,7 @@ class _homeState extends State<home> {
             text: "Entrada",
             icon: Icons.login,
             setTime: setTime,
+            type: 1,
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.1),
           buttonMenu(
@@ -168,6 +173,7 @@ class _homeState extends State<home> {
             text: "Salida",
             icon: Icons.logout,
             setTime: setTime,
+            type: 2,
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.1),
           buttonMenu(
@@ -175,18 +181,10 @@ class _homeState extends State<home> {
             text: "Emergencia",
             icon: Icons.warning,
             setTime: setTime,
+            type: 3,
           ),
         ],
       ),
     );
-    /*floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Acción a realizar cuando se presiona el botón flotante
-          // Por ejemplo, mostrar un mensaje en la consola
-          print('Botón flotante presionado');
-        },
-        child: Container(child: Icon(Icons.check)), // Icono del botón flotante
-        backgroundColor: Colors.lightGreen, // Color de fondo del botón flotante
-      )*/
   }
 }
