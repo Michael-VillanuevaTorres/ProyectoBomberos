@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:app/utils/colors.dart';
 
 const status = {
-  "Emergencia": 0,
+  "Emergencia": 2,
   "Disponible": 1,
 };
 
@@ -17,17 +17,35 @@ class available extends StatefulWidget {
 class _availableState extends State<available> {
   Future<List<User>> getUser(int value) async {
     try {
-      final response =
-          await http.get(Uri.parse("http://127.0.0.1:5000/api/v1/usersAll"));
+      List users = [];
+      if (value == 1) {
+        final responseActive = await http
+            .get(Uri.parse("http://127.0.0.1:5000/user/users_by_state/1"));
+        users = json.decode(responseActive.body);
+      }
+      if (value == 2) {
+        final responseWarning = await http
+            .get(Uri.parse("http://127.0.0.1:5000/user/users_by_state/2"));
+        users = json.decode(responseWarning.body);
+      }
+      if (value == 0) {
+        final responseActive = await http
+            .get(Uri.parse("http://127.0.0.1:5000/user/users_by_state/1"));
+        users = json.decode(responseActive.body);
+
+        final responseWarning = await http
+            .get(Uri.parse("http://127.0.0.1:5000/user/users_by_state/2"));
+        users += json.decode(responseWarning.body);
+      }
       //if (response.statusCode == 200) {
       // Si la solicitud es exitosa y el estado es 200 (OK), analizamos los datos
-      List users = json.decode(response.body);
+      //List users = json.decode(response_active.body);
       // Convertir la lista dinámica a una lista de Map<String, dynamic>
       List<User> list = users.map((user) => User.fromJson(user)).toList();
-      if (value == 2) {
-        return list;
-      }
-      return list.where((element) => element.status == value).toList();
+      //if (value == 0) {
+      return list;
+      //}
+      //return list.where((element) => element.state == value).toList();
     } catch (error) {
       // Manejo de errores de la solicitud
       throw Exception('Failed to load User');
@@ -35,7 +53,7 @@ class _availableState extends State<available> {
   }
 
   List<String> list = <String>['Todos', 'Activos', 'Emergencia'];
-  int? dropdownValue = 2;
+  int? dropdownValue = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -56,104 +74,8 @@ class _availableState extends State<available> {
       body: Container(
         child: Column(
           children: [
-            /*Container(
-              height: 20,
-              margin: EdgeInsets.only(top: 10),
-              padding: EdgeInsets.only(left: 10, right: 10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.black), // Quitar el borde
-              ),
-              child: */
             Container(
               margin: const EdgeInsets.only(top: 10),
-              /*child: DropdownButtonHideUnderline(
-                child: DropdownButton2<String>(
-                  isExpanded: true,
-                  /*hint: const Row(
-                    children: [
-                      Icon(
-                        Icons.list,
-                        size: 16,
-                        color: Colors.yellow,
-                      ),
-                      SizedBox(
-                        width: 4,
-                      ),
-                      Expanded(
-                        child: Text(
-                          'Select Item',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.yellow,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),*/
-                  items: list
-                      .map((String item) => DropdownMenuItem<String>(
-                            value: item,
-                            child: Text(
-                              item,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ))
-                      .toList(),
-                  value: dropdownValue,
-                  onChanged: (String? value) {
-                    setState(() {
-                      dropdownValue = value;
-                    });
-                  },
-                  buttonStyleData: ButtonStyleData(
-                    height: 40,
-                    width: 160,
-                    padding: const EdgeInsets.only(left: 14, right: 14),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: Colors.black26,
-                      ),
-                      color: Colors.white,
-                    ),
-                    elevation: 2,
-                  ),
-                  iconStyleData: const IconStyleData(
-                    icon: Icon(
-                      Icons.arrow_forward_ios_outlined,
-                    ),
-                    iconSize: 14,
-                    iconEnabledColor: Colors.red,
-                    iconDisabledColor: Colors.grey,
-                  ),
-                  dropdownStyleData: DropdownStyleData(
-                    maxHeight: 200,
-                    width: 200,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14),
-                      color: Colors.amber,
-                    ),
-                    offset: const Offset(-20, 0),
-                    scrollbarTheme: ScrollbarThemeData(
-                      radius: const Radius.circular(40),
-                      thickness: MaterialStateProperty.all<double>(6),
-                      thumbVisibility: MaterialStateProperty.all<bool>(true),
-                    ),
-                  ),
-                  menuItemStyleData: const MenuItemStyleData(
-                    height: 30,
-                    padding: EdgeInsets.only(left: 14, right: 14),
-                  ),
-                ),*/
               child: Container(
                 padding: const EdgeInsets.only(left: 20),
                 decoration: BoxDecoration(
@@ -175,13 +97,13 @@ class _availableState extends State<available> {
                     setState(() {
                       switch (value) {
                         case "Todos":
-                          dropdownValue = 2;
+                          dropdownValue = 0;
                           break;
                         case "Activos":
                           dropdownValue = 1;
                           break;
                         case "Emergencia":
-                          dropdownValue = 0;
+                          dropdownValue = 2;
                           break;
                       }
                       print(dropdownValue);
@@ -198,27 +120,25 @@ class _availableState extends State<available> {
             ),
             Expanded(
               child: FutureBuilder<List<User>>(
-                  future: getUser(dropdownValue!),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return ListView.builder(
-                          itemCount: snapshot.data!.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            final item = snapshot.data![index];
-                            return stateBombero(firefighter: item);
-                          });
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text(snapshot.error.toString()));
+                future: getUser(dropdownValue!),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    if (snapshot.data!.isEmpty) {
+                      return const Center(
+                          child: Text("No se encontró personal registrado"));
                     }
-                    return const Center(child: CircularProgressIndicator());
-                  }),
-              /*child: ListView.builder(
-                padding: const EdgeInsets.all(8),
-                itemCount: listFilter.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return stateBombero(firefighter: listFilter[index]);
+                    return ListView.builder(
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          final item = snapshot.data![index];
+                          return stateBombero(firefighter: item);
+                        });
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text(snapshot.error.toString()));
+                  }
+                  return const Center(child: CircularProgressIndicator());
                 },
-              ),*/
+              ),
             ),
           ],
         ),
@@ -240,9 +160,10 @@ class _stateBomberoState extends State<stateBombero> {
   Widget build(BuildContext context) {
     // User P = widget.firefighter;
     Color colorContainer;
-    switch (widget.firefighter.status) {
-      case 0:
+    switch (widget.firefighter.state) {
+      case 2:
         colorContainer = const Color.fromARGB(255, 255, 174, 52);
+      //print("status : ${status["Emergencia"]}");
       default:
         colorContainer = Colors.green;
     }
@@ -274,7 +195,7 @@ class _stateBomberoState extends State<stateBombero> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    if (widget.firefighter.status == status["Emergencia"])
+                    if (widget.firefighter.state == status["Emergencia"])
                       const Text(
                         "Emergencia",
                         style: TextStyle(fontSize: 10, color: Colors.grey),
@@ -285,7 +206,7 @@ class _stateBomberoState extends State<stateBombero> {
                         style: TextStyle(fontSize: 10, color: Colors.grey),
                       ),
                     Text(
-                      "${widget.firefighter.name} ${widget.firefighter.apellido}",
+                      "${widget.firefighter.firstName} ${widget.firefighter.lastName}",
                       style: const TextStyle(fontSize: 15),
                       overflow: TextOverflow.ellipsis,
                     ),
