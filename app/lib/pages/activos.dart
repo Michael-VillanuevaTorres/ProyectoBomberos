@@ -15,41 +15,52 @@ class available extends StatefulWidget {
 }
 
 class _availableState extends State<available> {
-  Future<List<User>> getUser(int value) async {
-    try {
-      List users = [];
-      if (value == 1) {
-        final responseActive = await http
-            .get(Uri.parse("http://127.0.0.1:5000/user/users_by_state/1"));
-        users = json.decode(responseActive.body);
-      }
-      if (value == 2) {
-        final responseWarning = await http
-            .get(Uri.parse("http://127.0.0.1:5000/user/users_by_state/2"));
-        users = json.decode(responseWarning.body);
-      }
-      if (value == 0) {
-        final responseActive = await http
-            .get(Uri.parse("http://127.0.0.1:5000/user/users_by_state/1"));
-        users = json.decode(responseActive.body);
+  late Future<void> _initLoad;
+  late List<dynamic> users = [];
+  late List<dynamic> activeUser;
+  late List<dynamic> warningUser;
 
-        final responseWarning = await http
-            .get(Uri.parse("http://127.0.0.1:5000/user/users_by_state/2"));
-        users += json.decode(responseWarning.body);
+  Future<void> getUser(int option) async {
+    try {
+      final responseActive = await http
+          .get(Uri.parse("http://127.0.0.1:5000/user/users_by_state/1"));
+      activeUser = json.decode(responseActive.body);
+
+      final responseWarning = await http
+          .get(Uri.parse("http://127.0.0.1:5000/user/users_by_state/2"));
+      warningUser = json.decode(responseWarning.body);
+      if (responseActive.statusCode == 200 &&
+          responseWarning.statusCode == 200) {
+        setState(() {
+          activeUser = activeUser.map((user) => User.fromJson(user)).toList();
+          warningUser = warningUser.map((user) => User.fromJson(user)).toList();
+          if (option == 0) {
+            users = activeUser + warningUser;
+          }
+          if (option == 1) {
+            users = activeUser;
+          }
+          if (option == 2) {
+            users = warningUser;
+          }
+        });
       }
-      //if (response.statusCode == 200) {
       // Si la solicitud es exitosa y el estado es 200 (OK), analizamos los datos
       //List users = json.decode(response_active.body);
       // Convertir la lista dinámica a una lista de Map<String, dynamic>
-      List<User> list = users.map((user) => User.fromJson(user)).toList();
       //if (value == 0) {
-      return list;
       //}
       //return list.where((element) => element.state == value).toList();
     } catch (error) {
       // Manejo de errores de la solicitud
       throw Exception('Failed to load User');
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initLoad = getUser(0);
   }
 
   List<String> list = <String>['Todos', 'Activos', 'Emergencia'];
@@ -97,16 +108,18 @@ class _availableState extends State<available> {
                     setState(() {
                       switch (value) {
                         case "Todos":
+                          users = activeUser + warningUser;
                           dropdownValue = 0;
                           break;
                         case "Activos":
+                          users = activeUser;
                           dropdownValue = 1;
                           break;
                         case "Emergencia":
+                          users = warningUser;
                           dropdownValue = 2;
                           break;
                       }
-                      print(dropdownValue);
                     });
                   },
                   dropdownMenuEntries: list
@@ -119,24 +132,34 @@ class _availableState extends State<available> {
               ),
             ),
             Expanded(
-              child: FutureBuilder<List<User>>(
-                future: getUser(dropdownValue!),
+              child: FutureBuilder(
+                future: _initLoad,
                 builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    if (snapshot.data!.isEmpty) {
-                      return const Center(
-                          child: Text("No se encontró personal registrado"));
-                    }
-                    return ListView.builder(
-                        itemCount: snapshot.data!.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          final item = snapshot.data![index];
-                          return stateBombero(firefighter: item);
-                        });
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text(snapshot.error.toString()));
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.done:
+                      {
+                        return RefreshIndicator(
+                            onRefresh: () => getUser(dropdownValue!),
+                            child: ListView.builder(
+                                itemCount: users.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final item = users[index];
+                                  return stateBombero(firefighter: item);
+                                }));
+                      }
+                    case ConnectionState.waiting:
+                      {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                    case ConnectionState.active:
+                      {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                    case ConnectionState.none:
+                      {
+                        return const Center(child: CircularProgressIndicator());
+                      }
                   }
-                  return const Center(child: CircularProgressIndicator());
                 },
               ),
             ),

@@ -1,3 +1,4 @@
+import 'package:app/object/stadistic.dart';
 import 'package:flutter/material.dart';
 //import 'package:app/pages/widget.dart';
 
@@ -13,19 +14,13 @@ class tableRegister extends StatefulWidget {
 class _tableRegisterState extends State<tableRegister> {
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, Object>> args =
-        ModalRoute.of(context)!.settings.arguments as List<Map<String, Object>>;
+    final List<times> args =
+        ModalRoute.of(context)!.settings.arguments as List<times>;
     return Scaffold(
       backgroundColor: colorBackground,
       appBar: AppBar(
         foregroundColor: Colors.white,
         backgroundColor: Colors.black,
-        /*actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.person, color: Colors.white),
-          ),
-        ],*/
         title: const Align(
           alignment: Alignment.centerLeft,
           child: Text(
@@ -70,7 +65,7 @@ class _tableRegisterState extends State<tableRegister> {
                   ],
                 ),
                 ...List.generate(
-                  20,
+                  args.length,
                   (index) => TableRow(
                     decoration: const BoxDecoration(
                       color: Colors.white,
@@ -79,13 +74,13 @@ class _tableRegisterState extends State<tableRegister> {
                       TableCell(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text("${args[1]['title']}"),
+                          child: Text("${args[index].entryTime}"),
                         ),
                       ),
                       TableCell(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text("${args[0]['title']}"),
+                          child: Text("${args[index].exitTime}"),
                         ),
                       ),
                     ],
