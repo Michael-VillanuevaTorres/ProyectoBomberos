@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:app/utils/globals.dart';
 
 class buttonMenu extends StatefulWidget {
   final Color color;
@@ -18,6 +19,8 @@ class buttonMenu extends StatefulWidget {
 }
 
 class _buttonMenuState extends State<buttonMenu> {
+  int idUser = Globals.returnID(Globals.token);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -36,7 +39,7 @@ class _buttonMenuState extends State<buttonMenu> {
           onPressed: () {
             setState(
               () {
-                widget.setTime(widget.type, 1);
+                widget.setTime(widget.type, idUser);
               },
             );
           },
@@ -71,7 +74,9 @@ class CustomAppBarAcceso extends StatelessWidget
           ),
         ),
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pushNamed(context, 'perfil');
+          },
           icon: Icon(Icons.settings, color: Colors.white),
         ),
       ],
@@ -125,8 +130,9 @@ class _DatahourState extends State<Datahour> {
 class Dataregister extends StatefulWidget {
   //const _Dataregister({super.key});
   String title;
+  int register;
   //int register;
-  Dataregister({required this.title}); //, required this.register});
+  Dataregister({required this.title, required this.register});
   @override
   State<Dataregister> createState() => _DataregisterState();
 }
@@ -149,7 +155,7 @@ class _DataregisterState extends State<Dataregister> {
             border: Border.all(color: Colors.black), // Quitar el borde
           ),
           child: Center(
-            child: Text("3"), // Entregar numero de registros
+            child: Text("${widget.register}"), // Entregar numero de registros
           ),
         ),
       ],
