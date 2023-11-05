@@ -1,5 +1,6 @@
 import 'package:app/pages/activos.dart';
 import 'package:app/pages/login.dart';
+import 'package:app/pages/perfil.dart';
 import 'package:app/pages/register.dart';
 import 'package:flutter/material.dart';
 
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
         //'/': (BuildContext context) => MenuPage(),
         'registers': (BuildContext context) => tableRegister(),
         'actives': (BuildContext context) => available(),
+        'perfil': (BuildContext context) => perfil(),
       },
       title: 'Flutter Demo',
       theme: ThemeData(
