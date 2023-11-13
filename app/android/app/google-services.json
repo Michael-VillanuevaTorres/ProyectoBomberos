@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1008603092232",
+    "project_id": "rfecc-6bf47",
+    "storage_bucket": "rfecc-6bf47.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1008603092232:android:7a6c743d72e235a81108bd",
+        "android_client_info": {
+          "package_name": "com.ecc.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTc1ZRhqRLcufpr70waHowJ2szInwqBSA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

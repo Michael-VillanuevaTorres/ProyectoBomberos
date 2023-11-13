@@ -5,6 +5,9 @@ import 'package:app/pages/statistics.dart';
 import 'package:app/pages/widget.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:app/utils/globals.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import 'package:fluttertoast/fluttertoast.dart';
 
 class MenuPage extends StatefulWidget {
@@ -33,20 +36,6 @@ class _MenuPageState extends State<MenuPage> {
     return Scaffold(
       backgroundColor: colorBackground,
       appBar: _appbar[_currentIndex],
-      /*AppBar(
-          backgroundColor: Colors.black,
-          actions: [
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.person, color: Colors.white),
-            ),
-          ],
-          title: const Text(
-            'Acceso',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),*/
-
       body: WillPopScope(
         onWillPop: () => Future.value(false),
         child: _pages[_currentIndex],
@@ -89,13 +78,17 @@ class home extends StatefulWidget {
 }
 
 class _homeState extends State<home> {
-  Future<void> setTime(int type, int idUser) async {
+  int idUser = Globals.returnID(Globals.token);
+
+  int warning = 2;
+
+  Future<void> setTime(int type) async {
     try {
       if (type == 1) {
         //await Future.delayed(const Duration(seconds: 5));
         final response = await http.post(
           Uri.parse(
-              'http://127.0.0.1:5000/entrytime/'), //Uri.parse('http://127.0.0.1:5000/api/v1/fecha'),
+              'http://${dotenv.env['BASE_URL']}:5000/entrytime/'), //Uri.parse('http://127.0.0.1:5000/api/v1/fecha'),
           headers: <String, String>{
             'Content-Type': 'application/json',
           },
@@ -123,7 +116,7 @@ class _homeState extends State<home> {
       } else {
         final response = await http.post(
           Uri.parse(
-              'http://127.0.0.1:5000/exittime/'), //Uri.parse('http://127.0.0.1:5000/api/v1/fecha'),
+              'http://${dotenv.env['BASE_URL']}:5000/exittime/'), //Uri.parse('http://127.0.0.1:5000/api/v1/fecha'),
           headers: <String, String>{
             'Content-Type': 'application/json',
           },
@@ -154,6 +147,39 @@ class _homeState extends State<home> {
     }
   }
 
+  Future<void> setWarning() async {
+    try {
+      final response = await http.patch(
+        Uri.parse("http://${dotenv.env['BASE_URL']}:5000/user/${idUser}"),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(<String, int>{'state': warning}),
+      );
+      if (response.statusCode == 200) {
+        Fluttertoast.showToast(
+            msg: "Cambiado a estado de emergencia",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      } else {
+        Fluttertoast.showToast(
+            msg: "Error al cambiar estado",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      }
+    } catch (e) {
+      throw Exception("Error al ingresar hora");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -176,12 +202,31 @@ class _homeState extends State<home> {
             type: 2,
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-          buttonMenu(
-            color: Colors.orange,
-            text: "Emergencia",
-            icon: Icons.warning,
-            setTime: setTime,
-            type: 3,
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.orange,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            width: 200,
+            height: 50,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                shadowColor: Colors.black,
+                elevation: 7,
+                backgroundColor: Colors.orange,
+              ),
+              onPressed: () async {
+                await setWarning();
+                setState(
+                  () {},
+                );
+              },
+              icon: Icon(Icons.warning, color: Colors.white, size: 30),
+              label: Text(
+                "Emergencia",
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+            ),
           ),
         ],
       ),

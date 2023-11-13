@@ -3,6 +3,7 @@ import 'package:app/pages/widget.dart';
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
 
 class statistics extends StatefulWidget {
@@ -13,21 +14,29 @@ class statistics extends StatefulWidget {
 }
 
 class _statisticsState extends State<statistics> {
-  late Datatimes _statsweek;
-  late Datatimes _stats;
-  late Datatimes _statsmonth;
+  late DateTimes _statsweek;
+  late DateTimes _stats;
+  late DateTimes _statsmonth;
+
+  double timetoHour(String totalHoursWorked) {
+    List<String> s = _stats.totalHoursWorked.split(":");
+    double suma = double.parse(s[0]) +
+        double.parse(s[1]) / 60 +
+        (double.parse(s[2]) / 3600);
+    return suma;
+  }
 
   late Future<void> _initLoad;
   Future<void> getStadistics() async {
     try {
-      final responseweek = await http
-          .get(Uri.parse('http://127.0.0.1:5000/entrytime/summary/1/1'));
-      final responsemonth = await http
-          .get(Uri.parse('http://127.0.0.1:5000/entrytime/summary/1/30'));
+      final responseweek = await http.get(Uri.parse(
+          'http://${dotenv.env['BASE_URL']}:5000/entrytime/summary/1/2'));
+      final responsemonth = await http.get(Uri.parse(
+          'http://${dotenv.env['BASE_URL']}:5000/entrytime/summary/1/30'));
       if (responseweek.statusCode == 200 && responsemonth.statusCode == 200) {
-        _statsweek = Datatimes.fromJson(json.decode(responseweek.body));
+        _statsweek = DateTimes.fromJson(json.decode(responseweek.body));
         _stats = _statsweek;
-        _statsmonth = Datatimes.fromJson(json.decode(responsemonth.body));
+        _statsmonth = DateTimes.fromJson(json.decode(responsemonth.body));
       }
     } catch (e) {
       throw Exception(e);
@@ -42,18 +51,18 @@ class _statisticsState extends State<statistics> {
 
   List<String> list = <String>['Última Semana', 'Último mes'];
   String dropdownValue = "";
-  double ready = 5.1;
   final double total = 20.3;
+  double? ready;
 
   final colorList = <Color>[Colors.greenAccent, Colors.redAccent];
 
   @override
   Widget build(BuildContext context) {
-    final double missing = total - ready;
-    final dataMap = <String, double>{
-      "Horas realizadas": ready,
-      "Horas faltantes": missing,
-    };
+    /*final DataMap = <String,double>{
+      "Horas realizadas": ((timetoHour(_stats.totalHoursWorked) * 100) / total),
+      "Horas faltantes":
+          ((total - timetoHour(_stats.totalHoursWorked)) * 100) / total,
+    };*/
     return FutureBuilder(
       future: _initLoad,
       builder: (context, snapshot) {
@@ -72,9 +81,32 @@ class _statisticsState extends State<statistics> {
                         border:
                             Border.all(color: Colors.black), // Quitar el borde
                       ),
-                      child: DropdownMenu<String>(
-                        width: 170,
-                        initialSelection: list.last,
+                      child: DropdownButtonFormField<String>(
+                        /*decoration: InputDecoration(
+                          labelText: 'Unidad',
+                        ),*/
+                        value: list.first,
+                        items: list
+                            .map((item) => DropdownMenuItem(
+                                value: item, child: Text(item)))
+                            .toList(),
+                        onChanged: (value) {
+                          dropdownValue = value!;
+
+                          if (dropdownValue == "Última Semana") {
+                            _stats = _statsweek;
+                            ready = timetoHour(_stats.totalHoursWorked);
+                          } else {
+                            _stats = _statsmonth;
+                            ready = timetoHour(_stats.totalHoursWorked);
+                          } // This is called when the user selects an item.
+                          setState(
+                            () {},
+                          );
+                          //setState(() {});
+                        },
+                        /*width: 170,
+                        initialSelection: list.first,
                         menuStyle: const MenuStyle(
                           backgroundColor:
                               MaterialStatePropertyAll<Color>(Colors.white),
@@ -87,14 +119,14 @@ class _statisticsState extends State<statistics> {
 
                           if (dropdownValue == "Última Semana") {
                             _stats = _statsweek;
-                            ready = _stats.entryCount.toDouble();
+                            ready = timetoHour(_stats.totalHoursWorked);
                           } else {
                             _stats = _statsmonth;
-                            ready = _stats.entryCount.toDouble();
+                            ready = timetoHour(_stats.totalHoursWorked);
                           } // This is called when the user selects an item.
-                          setState(
+                          /*setState(
                             () {},
-                          );
+                          );*/
                         },
                         dropdownMenuEntries: list
                             .map<DropdownMenuEntry<String>>(
@@ -102,6 +134,7 @@ class _statisticsState extends State<statistics> {
                                   value: value, label: value),
                             )
                             .toList(),
+                      ),*/
                       ),
                     ),
                     Container(
@@ -110,7 +143,7 @@ class _statisticsState extends State<statistics> {
                         onPressed: () {
                           setState(() {
                             Navigator.pushNamed(context, 'registers',
-                                arguments: _stats.entrytimes);
+                                arguments: _stats.entries);
                           });
                         },
                         style: ElevatedButton.styleFrom(
@@ -128,7 +161,8 @@ class _statisticsState extends State<statistics> {
                     ),
                     Container(
                       margin: const EdgeInsets.only(top: 5, bottom: 5),
-                      child: Datahour(time: DateTime.now(), register: 1),
+                      child:
+                          Datahour(time: _stats.totalHoursWorked, register: 1),
                     ),
                     Container(
                       margin: const EdgeInsets.only(top: 5, bottom: 5),
@@ -141,7 +175,12 @@ class _statisticsState extends State<statistics> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: PieChart(
                         chartRadius: 150,
-                        dataMap: dataMap,
+                        dataMap: <String, double>{
+                          "Horas realizadas":
+                              (timetoHour(_stats.totalHoursWorked)),
+                          "Horas faltantes":
+                              total - timetoHour(_stats.totalHoursWorked)
+                        },
                         legendOptions: const LegendOptions(
                           showLegendsInRow: true,
                           legendPosition: LegendPosition.top,
@@ -153,7 +192,7 @@ class _statisticsState extends State<statistics> {
                         baseChartColor: Colors.grey[50]!.withOpacity(0.15),
                         colorList: colorList,
                         chartValuesOptions: const ChartValuesOptions(
-                          showChartValuesInPercentage: false,
+                          showChartValuesInPercentage: true,
                         ),
                         totalValue: total.toDouble(),
                       ),

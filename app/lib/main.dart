@@ -1,10 +1,19 @@
+import 'package:app/firebase_options.dart';
+import 'package:app/object/firebase.dart';
 import 'package:app/pages/activos.dart';
 import 'package:app/pages/login.dart';
 import 'package:app/pages/perfil.dart';
 import 'package:app/pages/register.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await FirebaseApi().initNotification();
+  await dotenv.load(fileName: "lib/.env"); //path to your .env file);
+
   runApp(const MyApp());
 }
 

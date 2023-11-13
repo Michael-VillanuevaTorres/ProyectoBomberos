@@ -39,7 +39,7 @@ class _buttonMenuState extends State<buttonMenu> {
           onPressed: () {
             setState(
               () {
-                widget.setTime(widget.type, idUser);
+                widget.setTime(widget.type);
               },
             );
           },
@@ -94,7 +94,7 @@ class CustomAppBarAcceso extends StatelessWidget
 
 class Datahour extends StatefulWidget {
   //const Datahour({super.key});
-  DateTime time;
+  String time;
   int register;
   Datahour({required this.time, required this.register});
   @override
@@ -119,7 +119,7 @@ class _DatahourState extends State<Datahour> {
             border: Border.all(color: Colors.black), // Quitar el borde
           ),
           child: Center(
-            child: Text("${widget.time.hour}:${widget.time.minute}"),
+            child: Text("${widget.time}"),
           ),
         ),
       ],

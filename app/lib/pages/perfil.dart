@@ -16,99 +16,86 @@ class _perfilState extends State<perfil> {
   bool _obscureTexttwo = true;
 
   TextEditingController repassword = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
+
   bool editar = false;
 
   Widget updatePassword(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.7,
-              height: 40,
-              child: TextFormField(
-                controller: password,
-                obscureText: _obscureTextone,
-                decoration: InputDecoration(
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscureTextone ? Icons.visibility_off : Icons.visibility,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscureTextone =
-                            !_obscureTextone; // Cambia entre texto visible y oculto
-                      });
-                    },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.7,
+            height: 60,
+            child: TextFormField(
+              controller: password,
+              obscureText: _obscureTextone,
+              decoration: InputDecoration(
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureTextone ? Icons.visibility : Icons.visibility_off,
                   ),
-                  hintText: "Contraseña",
+                  onPressed: () {
+                    setState(() {
+                      _obscureTextone =
+                          !_obscureTextone; // Cambia entre texto visible y oculto
+                    });
+                  },
                 ),
-                // The validator receives the text that the user has entered.
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter some text';
-                  }
-                  return null;
-                },
+                labelText: "Contraseña",
               ),
             ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.7,
-              height: 40,
-              child: TextFormField(
-                controller: repassword,
-                obscureText: _obscureTexttwo,
-                decoration: InputDecoration(
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscureTexttwo ? Icons.visibility_off : Icons.visibility,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscureTexttwo =
-                            !_obscureTexttwo; // Cambia entre texto visible y oculto
-                      });
-                    },
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.7,
+            height: 60,
+            child: TextFormField(
+              controller: repassword,
+              obscureText: _obscureTexttwo,
+              decoration: InputDecoration(
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureTexttwo ? Icons.visibility : Icons.visibility_off,
                   ),
-                  hintText: "Repetir Contraseña",
+                  onPressed: () {
+                    setState(() {
+                      _obscureTexttwo =
+                          !_obscureTexttwo; // Cambia entre texto visible y oculto
+                    });
+                  },
                 ),
-                // The validator receives the text that the user has entered.
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter some text';
-                  }
-                  return null;
-                },
+                labelText: "Repetir Contraseña",
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                onPressed: () {
+              ),
+              onPressed: () {
+                if (password.text != repassword.text) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Las contraseñas no coinciden')),
+                  );
+                } else if (password.text.isEmpty || repassword.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Campos vacios')));
                   // Validate returns true if the form is valid, or false otherwise.
-                  if (_formKey.currentState!.validate()) {
-                    // If the form is valid, display a snackbar. In the real world,
-                    // you'd often call a server or save the information in a database.
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Processing Data')),
-                    );
-                  }
-                },
-                child: const Text('Cambiar'),
-              ),
+                } else {
+                  //* REALIZAR LLAMADA A API PARA CAMBIAR CONTRASEÑA
+                }
+              },
+              child: const Text('Cambiar'),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

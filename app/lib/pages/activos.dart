@@ -3,6 +3,7 @@ import 'package:app/object/users.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:app/utils/colors.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 const status = {
   "Emergencia": 2,
@@ -16,18 +17,18 @@ class available extends StatefulWidget {
 
 class _availableState extends State<available> {
   late Future<void> _initLoad;
-  late List<dynamic> users = [];
+  late List<dynamic> users;
   late List<dynamic> activeUser;
   late List<dynamic> warningUser;
 
   Future<void> getUser(int option) async {
     try {
-      final responseActive = await http
-          .get(Uri.parse("http://127.0.0.1:5000/user/users_by_state/1"));
+      final responseActive = await http.get(Uri.parse(
+          "http://${dotenv.env['BASE_URL']}:5000/user/users_by_state/1"));
       activeUser = json.decode(responseActive.body);
 
-      final responseWarning = await http
-          .get(Uri.parse("http://127.0.0.1:5000/user/users_by_state/2"));
+      final responseWarning = await http.get(Uri.parse(
+          "http://${dotenv.env['BASE_URL']}:5000/user/users_by_state/2"));
       warningUser = json.decode(responseWarning.body);
       if (responseActive.statusCode == 200 &&
           responseWarning.statusCode == 200) {

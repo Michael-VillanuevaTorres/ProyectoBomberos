@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:app/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:app/token/accces_token-dart.dart';
@@ -7,6 +6,7 @@ import 'package:app/utils/globals.dart';
 import 'package:http/http.dart' as http;
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:app/pages/menu.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -24,7 +24,7 @@ class _LoginState extends State<Login> {
 
   Future<AccessToken> validar(String user_name, String password) async {
     final response = await http.post(
-      Uri.parse('http://127.0.0.1:5000/user/login'),
+      Uri.parse('http://${dotenv.env['BASE_URL']}:5000/user/login'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
