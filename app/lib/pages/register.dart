@@ -80,7 +80,7 @@ class _tableRegisterState extends State<tableRegister> {
                       TableCell(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text("${args[index].entryDateTime}"),
+                          child: Text("${args[index].exitDateTime}"),
                         ),
                       ),
                     ],
