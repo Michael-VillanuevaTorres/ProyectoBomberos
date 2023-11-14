@@ -1,4 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:http/http.dart' as http;
 
 class forms extends StatefulWidget {
   const forms({super.key});
@@ -11,6 +16,7 @@ class _formsState extends State<forms> {
   // Form fields
   final _formKeyAceite = GlobalKey<FormState>();
   TextEditingController _AceiteController = TextEditingController();
+  TextEditingController _ObservacionController = TextEditingController();
 
   double? _enteredValue; // Valor ingresado en el campo de texto
   String? tipo;
@@ -39,6 +45,29 @@ class _formsState extends State<forms> {
     return true;
   }
 
+  Future<void> sendpush(String titulo, String observacion) async {
+    final response = await http.post(
+      Uri.parse('http://${dotenv.env['BASE_URL']}:5000/user/login'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(
+          <String, String>{"titulo": titulo, "observacion": observacion}),
+    );
+    if (response.statusCode == 200) {
+      Fluttertoast.showToast(
+          msg: "Formulario enviado con exito",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    } else {
+      throw Exception('Error.');
+    }
+  }
+
   Widget formBitacora() {
     return Container(
       margin: EdgeInsets.only(left: 16.0, right: 16),
@@ -62,6 +91,7 @@ class _formsState extends State<forms> {
 
           // Observación
           TextFormField(
+            controller: _ObservacionController,
             decoration: InputDecoration(
               labelText: 'Observación',
             ),
@@ -93,7 +123,6 @@ class _formsState extends State<forms> {
                 return null; // La validación pasó correctamente
               },
               onChanged: (value) {
-                print(_AceiteController.text);
                 _formKeyAceite.currentState!
                     .validate(); // Realiza la validación en tiempo real
               },
@@ -106,6 +135,8 @@ class _formsState extends State<forms> {
 
   void _submitForm() {
     if (_formKeyAceite.currentState!.validate()) {
+      // La validación pasó correctamente
+
       print('Form submitted successfully!');
     } else {
       print('Form validation failed.');
@@ -152,8 +183,16 @@ class _formsState extends State<forms> {
               // Submit button
 
               ElevatedButton(
-                onPressed: _submitForm,
-                child: Text('Submit'),
+                onPressed: () {
+                  if (_formKeyAceite.currentState!.validate()) {
+                    // La validación pasó correctamente
+                  }
+                  ;
+                  print('Form submitted successfully!');
+
+                  print('Form validation failed.');
+                },
+                child: const Text('Enviar'),
               )
             ],
           ),
