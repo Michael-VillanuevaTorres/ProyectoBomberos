@@ -66,10 +66,10 @@ class CustomAppBarAcceso extends StatelessWidget
       actions: [
         IconButton(
           onPressed: () {
-            Navigator.pushNamed(context, 'actives');
+            Navigator.pushNamed(context, 'notifications');
           },
           icon: Icon(
-            Icons.people,
+            Icons.notifications,
             color: Colors.white,
           ),
         ),

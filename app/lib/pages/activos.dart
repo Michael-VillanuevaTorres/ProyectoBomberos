@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:app/object/users.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:app/utils/colors.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 const status = {
@@ -69,103 +68,88 @@ class _availableState extends State<available> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: colorBackground,
-      appBar: AppBar(
-        foregroundColor: Colors.white,
-        backgroundColor: Colors.black,
-        title: const Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            "Disponibles",
-            textAlign: TextAlign.left,
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-      ),
-      body: Container(
-        child: Column(
-          children: [
-            Container(
-              margin: const EdgeInsets.only(top: 10),
-              child: Container(
-                padding: const EdgeInsets.only(left: 20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.black), // Quitar el borde
-                ),
-                child: DropdownMenu<String>(
-                  width: 150,
-                  initialSelection: list.first,
-                  menuStyle: const MenuStyle(
-                    backgroundColor:
-                        MaterialStatePropertyAll<Color>(Colors.white),
-                  ),
-                  inputDecorationTheme: const InputDecorationTheme(
-                    focusColor: Colors.red,
-                  ),
-                  onSelected: (String? value) {
-                    setState(() {
-                      switch (value) {
-                        case "Todos":
-                          users = activeUser + warningUser;
-                          dropdownValue = 0;
-                          break;
-                        case "Activos":
-                          users = activeUser;
-                          dropdownValue = 1;
-                          break;
-                        case "Emergencia":
-                          users = warningUser;
-                          dropdownValue = 2;
-                          break;
-                      }
-                    });
-                  },
-                  dropdownMenuEntries: list
-                      .map<DropdownMenuEntry<String>>(
-                        (String value) => DropdownMenuEntry<String>(
-                            value: value, label: value),
-                      )
-                      .toList(),
-                ),
+    return Container(
+      child: Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 10),
+            child: Container(
+              padding: const EdgeInsets.only(left: 20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.black), // Quitar el borde
               ),
-            ),
-            Expanded(
-              child: FutureBuilder(
-                future: _initLoad,
-                builder: (context, snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.done:
-                      {
-                        return RefreshIndicator(
-                            onRefresh: () => getUser(dropdownValue!),
-                            child: ListView.builder(
-                                itemCount: users.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  final item = users[index];
-                                  return stateBombero(firefighter: item);
-                                }));
-                      }
-                    case ConnectionState.waiting:
-                      {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                    case ConnectionState.active:
-                      {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                    case ConnectionState.none:
-                      {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                  }
+              child: DropdownMenu<String>(
+                width: 150,
+                initialSelection: list.first,
+                menuStyle: const MenuStyle(
+                  backgroundColor:
+                      MaterialStatePropertyAll<Color>(Colors.white),
+                ),
+                inputDecorationTheme: const InputDecorationTheme(
+                  focusColor: Colors.red,
+                ),
+                onSelected: (String? value) {
+                  setState(() {
+                    switch (value) {
+                      case "Todos":
+                        users = activeUser + warningUser;
+                        dropdownValue = 0;
+                        break;
+                      case "Activos":
+                        users = activeUser;
+                        dropdownValue = 1;
+                        break;
+                      case "Emergencia":
+                        users = warningUser;
+                        dropdownValue = 2;
+                        break;
+                    }
+                  });
                 },
+                dropdownMenuEntries: list
+                    .map<DropdownMenuEntry<String>>(
+                      (String value) =>
+                          DropdownMenuEntry<String>(value: value, label: value),
+                    )
+                    .toList(),
               ),
             ),
-          ],
-        ),
+          ),
+          Expanded(
+            child: FutureBuilder(
+              future: _initLoad,
+              builder: (context, snapshot) {
+                switch (snapshot.connectionState) {
+                  case ConnectionState.done:
+                    {
+                      return RefreshIndicator(
+                          onRefresh: () => getUser(dropdownValue!),
+                          child: ListView.builder(
+                              itemCount: users.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                final item = users[index];
+                                return stateBombero(firefighter: item);
+                              }));
+                    }
+                  case ConnectionState.waiting:
+                    {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                  case ConnectionState.active:
+                    {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                  case ConnectionState.none:
+                    {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                }
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

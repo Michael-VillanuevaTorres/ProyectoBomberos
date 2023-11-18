@@ -9,63 +9,43 @@ Future<void> backgroundHandler(RemoteMessage message) async {
   print(message.notification?.title);
 }
 
-late AndroidNotificationChannel channel;
-late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
 bool isFlutterLocalNotificationsInitialized = false;
 
 class FirebaseApi {
-  FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
-  handleMessage(RemoteMessage? message) {
+  final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+  final _androidChannel = const AndroidNotificationChannel(
+    'high_importance_channel', // id
+    'High Importance Notifications', // title
+    description:
+        'This channel is used for important notifications.', // description
+    importance: Importance.high,
+  );
+
+  final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  void handleMessage(RemoteMessage? message) {
+    //if (message == null) return;
+    //navigatorKey.currentState?
     print('Handling a background message ${message?.messageId}');
   }
 
-  Future<void> setupFlutterNotifications() async {
-    if (isFlutterLocalNotificationsInitialized) {
-      return;
-    }
-    flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin(); // Initialize here
-
-    channel = const AndroidNotificationChannel(
-      'high_importance_channel', // id
-      'High Importance Notifications', // title
-      description:
-          'This channel is used for important notifications.', // description
-      importance: Importance.high,
-    );
-
-    /// Create an Android Notification Channel.
-    ///
-    /// We use this channel in the `AndroidManifest.xml` file to override the
-    /// default FCM channel to enable heads up notifications.
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
-
-    /// Update the iOS foreground notification presentation options to allow
-    /// heads up notifications.
+  Future<void> initPushNotification() async {
     await FirebaseMessaging.instance
         .setForegroundNotificationPresentationOptions(
       alert: true,
       badge: true,
-      sound: true,
+      sound: false,
     );
-    isFlutterLocalNotificationsInitialized = true;
-  }
 
-  initPushNotification() async {
-    RemoteMessage? initialMessage = await firebaseMessaging.getInitialMessage();
-
-    if (initialMessage != null) {
-      handleMessage(initialMessage);
-    }
-    FirebaseMessaging.onMessageOpenedApp.listen((event) {
-      showFlutterNotification(event);
+    firebaseMessaging.getInitialMessage().then((message) {
+      handleMessage(message);
     });
-    FirebaseMessaging.onMessage.listen((event) {
-      showFlutterNotification(event);
+    // Apliacion en 2do plano y se toca la notificacion
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      print("fev ${message.notification}");
+    });
+    // Cuando se recibe el mensaje
+    FirebaseMessaging.onMessage.listen((message) {
+      showFlutterNotification(message);
     });
     FirebaseMessaging.onBackgroundMessage(backgroundHandler);
   }
@@ -81,12 +61,12 @@ class FirebaseApi {
         payload: jsonEncode(message.toMap()),
         NotificationDetails(
           android: AndroidNotificationDetails(
-            channel.id,
-            channel.name,
-            channelDescription: channel.description,
+            _androidChannel.id,
+            _androidChannel.name,
+            channelDescription: _androidChannel.description,
             // TODO add a proper drawable resource to android, for now using
             //      one that already exists in example app.
-            icon: 'ic_launcher',
+            //icon: '@drawable/ic_launcher',
           ),
         ),
       );
@@ -94,25 +74,26 @@ class FirebaseApi {
   }
 
   Future<void> initLocation() async {
-    final InitializationSettings initializationSettings =
-        InitializationSettings(
-            android: AndroidInitializationSettings("@/mipmap/ic_launcher"));
+    const initializationSettings = InitializationSettings(
+        android: AndroidInitializationSettings("mipmap/ic_launcher"));
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse:
           (NotificationResponse notificationResponse) {
-        print("fev ${notificationResponse.payload}");
+        //print("fev ${notificationResponse.payload.toString()}");
       },
-
       //onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
     );
+    final platForm =
+        flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+    await platForm?.createNotificationChannel(_androidChannel);
   }
 
-  initNotification() async {
+  Future<void> initNotification() async {
     await firebaseMessaging.requestPermission();
     firebaseMessaging.getToken().then((value) => print(value));
-    await setupFlutterNotifications();
-    initLocation();
     initPushNotification();
+    initLocation();
   }
 }

@@ -1,3 +1,4 @@
+import 'package:app/pages/activos.dart';
 import 'package:app/pages/forms.dart';
 import 'package:flutter/material.dart';
 import 'package:app/utils/colors.dart';
@@ -23,12 +24,14 @@ class _MenuPageState extends State<MenuPage> {
     forms(),
     home(),
     statistics(),
+    available(),
   ];
 
   final List<PreferredSizeWidget> _appbar = [
     CustomAppBarAcceso(text: 'Formularios'),
     CustomAppBarAcceso(text: 'Acceso'),
     CustomAppBarAcceso(text: 'Estadísticas'),
+    CustomAppBarAcceso(text: 'Bomberos'),
   ];
 
   @override
@@ -42,9 +45,9 @@ class _MenuPageState extends State<MenuPage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         iconSize: 30,
-        //backgroundColor: colorBottonNav,
         currentIndex: _currentIndex,
         selectedItemColor: Colors.orange,
+        unselectedItemColor: Colors.black,
         onTap: (int index) {
           setState(() {
             _currentIndex = index;
@@ -53,8 +56,7 @@ class _MenuPageState extends State<MenuPage> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.edit_document),
-            label: 'Formularios',
-            //backgroundColor: Colors.red,
+            label: 'Formularios', //backgroundColor: Colors.red,
           ),
           BottomNavigationBarItem(
             //backgroundColor: Colors.green,
@@ -62,9 +64,14 @@ class _MenuPageState extends State<MenuPage> {
             label: 'Inicio',
           ),
           BottomNavigationBarItem(
-            backgroundColor: Colors.blue,
+            //backgroundColor: Colors.white,
             icon: Icon(Icons.analytics),
             label: 'Estadisticas',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people),
+            label: 'Bomberos',
+            //backgroundColor: Colors.red,
           ),
         ],
       ),

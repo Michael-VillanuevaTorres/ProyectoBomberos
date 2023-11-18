@@ -2,6 +2,7 @@ import 'package:app/firebase_options.dart';
 import 'package:app/object/firebase.dart';
 import 'package:app/pages/activos.dart';
 import 'package:app/pages/login.dart';
+import 'package:app/pages/notifications.dart';
 import 'package:app/pages/perfil.dart';
 import 'package:app/pages/register.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -32,6 +33,8 @@ class MyApp extends StatelessWidget {
         //'/': (BuildContext context) => MenuPage(),
         'registers': (BuildContext context) => tableRegister(),
         'actives': (BuildContext context) => available(),
+        'notifications': (BuildContext context) => notification(),
+
         'perfil': (BuildContext context) => perfil(),
       },
       title: 'Flutter Demo',
