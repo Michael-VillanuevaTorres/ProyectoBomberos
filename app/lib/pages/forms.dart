@@ -15,35 +15,21 @@ class forms extends StatefulWidget {
 class _formsState extends State<forms> {
   // Form fields
   final _formKeyAceite = GlobalKey<FormState>();
+  final _formKeyUnidad = GlobalKey<FormState>();
+
   TextEditingController _AceiteController = TextEditingController();
   TextEditingController _ObservacionController = TextEditingController();
+  TextEditingController _UnidadController = TextEditingController();
 
-  double? _enteredValue; // Valor ingresado en el campo de texto
   String? tipo;
-  String? unidad;
-  String? observacion;
-  double? nivelDeAceite;
 
   // Dropdown menu items
-  final List<String> tipoItems = ['Bitacora', 'Formulario 2', 'Formulario 3'];
+  final List<String> tipoItems = [
+    'Bitacora'
+  ]; //, 'Formulario 2', 'Formulario 3'];
   final List<String> unidadItems = ['Unidad 1', 'Unidad 2', 'Unidad 3'];
 
   // Validate the form
-  bool _validateForm() {
-    if (tipo == null || tipo!.isEmpty) {
-      return false;
-    }
-
-    if (unidad == null || unidad!.isEmpty) {
-      return false;
-    }
-
-    if (nivelDeAceite == null || nivelDeAceite! <= 0) {
-      return false;
-    }
-
-    return true;
-  }
 
   Future<void> sendpush(String titulo, String observacion) async {
     final response = await http.post(
@@ -51,8 +37,11 @@ class _formsState extends State<forms> {
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode(
-          <String, String>{"titulo": titulo, "observacion": observacion}),
+      body: jsonEncode(<String, String>{
+        "Unidad": _UnidadController.text,
+        "Observacion": _ObservacionController.text,
+        "Nivel de aceite": _AceiteController.text,
+      }),
     );
     if (response.statusCode == 200) {
       Fluttertoast.showToast(
@@ -74,7 +63,29 @@ class _formsState extends State<forms> {
       child: Column(
         children: [
           // Unidad
-          DropdownButtonFormField<String>(
+          Form(
+            key: _formKeyUnidad,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: TextFormField(
+              controller: _UnidadController,
+              decoration: InputDecoration(
+                labelText: 'Unidad',
+              ),
+              maxLines: 1,
+              maxLength: 50,
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return 'Por favor ingrese la maquinaria';
+                }
+                return null; // La validación pasó correctamente
+              },
+              onChanged: (value) {
+                _formKeyUnidad.currentState!
+                    .validate(); // Realiza la validación en tiempo real
+              },
+            ),
+          ),
+          /*DropdownButtonFormField<String>(
             decoration: InputDecoration(
               labelText: 'Unidad',
             ),
@@ -87,7 +98,7 @@ class _formsState extends State<forms> {
                 unidad = value;
               });
             },
-          ),
+          ),*/
 
           // Observación
           TextFormField(
@@ -97,9 +108,6 @@ class _formsState extends State<forms> {
             ),
             maxLines: 3,
             maxLength: 255,
-            onChanged: (value) {
-              observacion = value;
-            },
           ),
 
           // Nivel de aceite
@@ -184,13 +192,13 @@ class _formsState extends State<forms> {
 
               ElevatedButton(
                 onPressed: () {
-                  if (_formKeyAceite.currentState!.validate()) {
+                  if (_formKeyAceite.currentState!.validate() &&
+                      _formKeyUnidad.currentState!.validate()) {
                     // La validación pasó correctamente
+                    print('Form submitted successfully!');
+                  } else {
+                    print('Form validation failed.');
                   }
-                  ;
-                  print('Form submitted successfully!');
-
-                  print('Form validation failed.');
                 },
                 child: const Text('Enviar'),
               )

@@ -51,7 +51,7 @@ class _statisticsState extends State<statistics> {
 
   List<String> list = <String>['Última Semana', 'Último mes'];
   String dropdownValue = "";
-  final double total = 20.3;
+  final double total = 20;
   double? ready;
 
   final colorList = <Color>[Colors.greenAccent, Colors.redAccent];
@@ -177,9 +177,13 @@ class _statisticsState extends State<statistics> {
                         chartRadius: 150,
                         dataMap: <String, double>{
                           "Horas realizadas":
-                              (timetoHour(_stats.totalHoursWorked)),
+                              (timetoHour(_stats.totalHoursWorked)) >= total
+                                  ? total
+                                  : timetoHour(_stats.totalHoursWorked),
                           "Horas faltantes":
-                              total - timetoHour(_stats.totalHoursWorked)
+                              total - timetoHour(_stats.totalHoursWorked) < 0
+                                  ? 0
+                                  : total - timetoHour(_stats.totalHoursWorked),
                         },
                         legendOptions: const LegendOptions(
                           showLegendsInRow: true,
