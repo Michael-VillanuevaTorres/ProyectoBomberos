@@ -35,8 +35,8 @@ class DateTimes {
 }
 
 class Entries {
-  DateTime entryDateTime;
-  DateTime exitDateTime;
+  String entryDateTime;
+  String exitDateTime;
   int id;
 
   Entries({
@@ -50,14 +50,14 @@ class Entries {
   String toRawJson() => json.encode(toJson());
 
   factory Entries.fromJson(Map<String, dynamic> json) => Entries(
-        entryDateTime: DateTime.parse(json["entry_date_time"]),
-        exitDateTime: DateTime.parse(json["exit_date_time"]),
+        entryDateTime: json["entry_date_time"],
+        exitDateTime: json["exit_date_time"],
         id: json["id"],
       );
 
   Map<String, dynamic> toJson() => {
-        "entry_date_time": entryDateTime.toIso8601String(),
-        "exit_date_time": exitDateTime.toIso8601String(),
+        "entry_date_time": entryDateTime,
+        "exit_date_time": exitDateTime,
         "id": id,
       };
 }
