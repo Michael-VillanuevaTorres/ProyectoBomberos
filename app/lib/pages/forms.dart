@@ -15,14 +15,65 @@ class forms extends StatefulWidget {
 class _formsState extends State<forms> {
   // Form fields
   final _formKeyAceite = GlobalKey<FormState>();
+  final _formKeyAgua = GlobalKey<FormState>();
   final _formKeyUnidad = GlobalKey<FormState>();
+  final _formKeyCombustible = GlobalKey<FormState>();
+  final _formKeytype = GlobalKey<FormState>();
 
   TextEditingController _AceiteController = TextEditingController();
+  TextEditingController _AguaController = TextEditingController();
   TextEditingController _ObservacionController = TextEditingController();
+  TextEditingController _CombustibleController = TextEditingController();
   TextEditingController _UnidadController = TextEditingController();
 
   String? tipo;
+  List<String> types = ['Uso común', 'Mantención', 'Reparación'];
+  String? selected;
+  bool validarTodosLosFormularios() {
+    bool todosLosFormulariosValidos = true;
 
+    for (var formKey in [
+      _formKeyAceite,
+      _formKeyUnidad,
+      _formKeyAgua,
+      _formKeyCombustible,
+      _formKeytype
+    ]) {
+      if (formKey.currentState!.validate() == false) {
+        // Marcar que al menos un formulario no es válido
+        todosLosFormulariosValidos = false;
+      }
+    }
+    return todosLosFormulariosValidos;
+  }
+
+  Widget nivelesNrico(String labelT, GlobalKey<FormState> formKey,
+          TextEditingController controller) =>
+      Form(
+        key: formKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        child: TextFormField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: labelT,
+          ),
+          keyboardType: TextInputType.number,
+          validator: (value) {
+            if (value!.isEmpty) {
+              return 'Por favor ingrese un número válido';
+            }
+            final enteredNumber = double.tryParse(value);
+            if (enteredNumber == null || enteredNumber <= 0) {
+              return 'Ingrese un número válido mayor que 0';
+            }
+            return null; // La validación pasó correctamente
+          },
+          onChanged: (value) {
+            _formKeyAceite.currentState!
+                .validate(); // Realiza la validación en tiempo real
+          },
+        ),
+      );
   // Dropdown menu items
   final List<String> tipoItems = [
     'Bitacora'
@@ -64,6 +115,30 @@ class _formsState extends State<forms> {
         children: [
           // Unidad
           Form(
+            key: _formKeytype,
+            child: DropdownButtonFormField<String>(
+              decoration: InputDecoration(
+                labelText: 'Tipo bitacora',
+              ),
+              value: selected,
+              items: types
+                  .map((item) =>
+                      DropdownMenuItem(value: item, child: Text(item)))
+                  .toList(),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Por favor ingrese el motivo de la bitacora';
+                }
+                return null; // La validación pasó correctamente
+              },
+              onChanged: (salutation) {
+                setState(() {
+                  selected = salutation!;
+                });
+              },
+            ),
+          ),
+          Form(
             key: _formKeyUnidad,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: TextFormField(
@@ -73,32 +148,12 @@ class _formsState extends State<forms> {
               ),
               maxLines: 1,
               maxLength: 50,
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Por favor ingrese la maquinaria';
-                }
-                return null; // La validación pasó correctamente
-              },
               onChanged: (value) {
                 _formKeyUnidad.currentState!
                     .validate(); // Realiza la validación en tiempo real
               },
             ),
           ),
-          /*DropdownButtonFormField<String>(
-            decoration: InputDecoration(
-              labelText: 'Unidad',
-            ),
-            value: unidad,
-            items: unidadItems
-                .map((item) => DropdownMenuItem(value: item, child: Text(item)))
-                .toList(),
-            onChanged: (value) {
-              setState(() {
-                unidad = value;
-              });
-            },
-          ),*/
 
           // Observación
           TextFormField(
@@ -110,38 +165,16 @@ class _formsState extends State<forms> {
             maxLength: 255,
           ),
 
-          // Nivel de aceite
-          Form(
-            key: _formKeyAceite,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            child: TextFormField(
-              controller: _AceiteController,
-              decoration: InputDecoration(
-                labelText: 'Nivel de aceite',
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Por favor ingrese un número válido';
-                }
-                final enteredNumber = double.tryParse(value);
-                if (enteredNumber == null || enteredNumber <= 0) {
-                  return 'Ingrese un número válido mayor que 0';
-                }
-                return null; // La validación pasó correctamente
-              },
-              onChanged: (value) {
-                _formKeyAceite.currentState!
-                    .validate(); // Realiza la validación en tiempo real
-              },
-            ),
-          )
+          nivelesNrico("Nivel de Aceite", _formKeyAceite, _AceiteController),
+          nivelesNrico("Nivel de Agua", _formKeyAgua, _AguaController),
+          nivelesNrico("Nivel de Combustible", _formKeyCombustible,
+              _CombustibleController)
         ],
       ),
     );
   }
 
-  void _submitForm() {
+  /*void _submitForm() {
     if (_formKeyAceite.currentState!.validate()) {
       // La validación pasó correctamente
 
@@ -149,60 +182,63 @@ class _formsState extends State<forms> {
     } else {
       print('Form validation failed.');
     }
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Form(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              Container(
-                height: 60,
-                padding: EdgeInsets.only(left: 16.0, right: 16.0),
-                width: MediaQuery.of(context).size.width * 2,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.black, width: 1.0),
-                    borderRadius: BorderRadius.circular(10.0)),
-                child: DropdownButtonFormField<String>(
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    labelText: 'Formulario',
+    return SingleChildScrollView(
+      physics: BouncingScrollPhysics(),
+      child: Center(
+        child: Form(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Container(
+                  height: 60,
+                  padding: EdgeInsets.only(left: 16.0, right: 16.0),
+                  width: MediaQuery.of(context).size.width * 2,
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: Colors.black, width: 1.0),
+                      borderRadius: BorderRadius.circular(10.0)),
+                  child: DropdownButtonFormField<String>(
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      labelText: 'Formulario',
+                    ),
+                    value: tipo,
+                    items: tipoItems
+                        .map((item) =>
+                            DropdownMenuItem(value: item, child: Text(item)))
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        tipo = value;
+                      });
+                    },
                   ),
-                  value: tipo,
-                  items: tipoItems
-                      .map((item) =>
-                          DropdownMenuItem(value: item, child: Text(item)))
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      tipo = value;
-                    });
-                  },
                 ),
-              ),
-              tipo == "Bitacora" ? formBitacora() : Container(),
+                tipo == "Bitacora" ? formBitacora() : Container(),
 
-              // Tipo
+                // Tipo
 
-              // Submit button
-
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKeyAceite.currentState!.validate() &&
-                      _formKeyUnidad.currentState!.validate()) {
-                    // La validación pasó correctamente
-                    print('Form submitted successfully!');
-                  } else {
-                    print('Form validation failed.');
-                  }
-                },
-                child: const Text('Enviar'),
-              )
-            ],
+                // Submit button
+                tipo == null
+                    ? Container()
+                    : ElevatedButton(
+                        onPressed: () {
+                          if (validarTodosLosFormularios()) {
+                            // La validación pasó correctamente
+                            print('Form submitted successfully!');
+                          } else {
+                            print('Form validation failed.');
+                          }
+                        },
+                        child: const Text('Enviar'),
+                      )
+              ],
+            ),
           ),
         ),
       ),
