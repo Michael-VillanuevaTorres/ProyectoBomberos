@@ -1,12 +1,12 @@
 import 'package:app/pages/activos.dart';
 import 'package:app/pages/forms.dart';
+import 'package:app/token/accces_token-dart.dart';
 import 'package:flutter/material.dart';
 import 'package:app/utils/colors.dart';
 import 'package:app/pages/statistics.dart';
 import 'package:app/pages/widget.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:app/utils/globals.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:fluttertoast/fluttertoast.dart';
@@ -85,19 +85,30 @@ class home extends StatefulWidget {
 }
 
 class _homeState extends State<home> {
-  int idUser = Globals.returnID(Globals.token);
-
+  int idUser = 1; //Globals.returnID(Globals.token);
+  Auth auth = Auth();
+  //late Future<void> token;
+  //Future<void> loadToken() async => await auth.loadToken();
   int warning = 2;
+
+  @override
+  void initState() {
+    super.initState();
+    auth.loadToken();
+    //setState(() {});
+  }
 
   Future<void> setTime(int type) async {
     try {
       if (type == 1) {
+        print("Token de entradas es:  ${auth.token}");
         //await Future.delayed(const Duration(seconds: 5));
         final response = await http.post(
           Uri.parse(
               'http://${dotenv.env['BASE_URL']}:5000/entrytime/'), //Uri.parse('http://127.0.0.1:5000/api/v1/fecha'),
           headers: <String, String>{
             'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${auth.token}',
           },
           body: jsonEncode(<String, int>{'user_id': idUser}),
         );
@@ -126,6 +137,7 @@ class _homeState extends State<home> {
               'http://${dotenv.env['BASE_URL']}:5000/exittime/'), //Uri.parse('http://127.0.0.1:5000/api/v1/fecha'),
           headers: <String, String>{
             'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${auth.token}',
           },
           body: jsonEncode(<String, int>{'user_id': idUser}),
         );
@@ -160,6 +172,7 @@ class _homeState extends State<home> {
         Uri.parse("http://${dotenv.env['BASE_URL']}:5000/user/${idUser}"),
         headers: <String, String>{
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${auth.token}',
         },
         body: jsonEncode(<String, int>{'state': warning}),
       );

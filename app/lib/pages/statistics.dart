@@ -1,4 +1,6 @@
+import 'package:app/main.dart';
 import 'package:app/object/stadistic.dart';
+import 'package:app/pages/register.dart';
 import 'package:app/pages/widget.dart';
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
@@ -142,7 +144,8 @@ class _statisticsState extends State<statistics> {
                       child: ElevatedButton(
                         onPressed: () {
                           setState(() {
-                            Navigator.pushNamed(context, 'registers',
+                            navigatorKey.currentState?.pushNamed(
+                                tableRegister.route,
                                 arguments: _stats.entries);
                           });
                         },

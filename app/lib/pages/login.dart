@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:app/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:app/token/accces_token-dart.dart';
-import 'package:app/utils/globals.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:app/pages/menu.dart';
@@ -10,6 +10,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
+  static const route = '/login';
 
   @override
   State<Login> createState() => _LoginState();
@@ -19,6 +20,7 @@ class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController loginController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  Auth authProvider = Auth();
 
   Future<AccessToken>? _futureToken;
 
@@ -43,7 +45,8 @@ class _LoginState extends State<Login> {
       future: _futureToken,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          Globals.token = snapshot.data!.accessToken;
+          authProvider.saveToken(snapshot.data!.accessToken);
+          authProvider.loadToken();
           WidgetsBinding.instance.addPostFrameCallback((_) =>
               Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => MenuPage()),
@@ -80,6 +83,14 @@ class _LoginState extends State<Login> {
         Text(msg)
       ],
     );
+  }
+
+  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+
+  @override
+  void initState() {
+    super.initState();
+    //print("Tokeeeeeen es: " + authProvider.token.toString());
   }
 
   @override

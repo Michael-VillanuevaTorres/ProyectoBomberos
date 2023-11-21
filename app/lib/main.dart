@@ -1,25 +1,34 @@
 import 'package:app/firebase_options.dart';
 import 'package:app/object/firebase.dart';
-import 'package:app/pages/activos.dart';
 import 'package:app/pages/login.dart';
+import 'package:app/pages/menu.dart';
 import 'package:app/pages/notifications.dart';
 import 'package:app/pages/perfil.dart';
 import 'package:app/pages/register.dart';
+import 'package:app/token/accces_token-dart.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
 
+final navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseApi().initNotification();
   await dotenv.load(fileName: "lib/.env"); //path to your .env file);
 
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  //const MyApp({super.key});
+  final Auth authProvider = Auth();
+
+  Future<void> init() async {
+    await authProvider.loadToken();
+    //print("Mi Token es: este" + authProvider.token.toString());
+  }
 
   // This widget is the root of your application.
   @override
@@ -29,14 +38,25 @@ class MyApp extends StatelessWidget {
       // Definimos la ruta inicial
       initialRoute: '/',
       // Definimos la lista de rutas en nuestra aplicación
-      routes: <String, WidgetBuilder>{
-        //'/': (BuildContext context) => MenuPage(),
-        'registers': (BuildContext context) => tableRegister(),
-        'actives': (BuildContext context) => available(),
-        'notifications': (BuildContext context) => notification(),
 
-        'perfil': (BuildContext context) => perfil(),
+      //routes: <String, WidgetBuilder>{
+      //'/': (BuildContext context) => MenuPage(),
+      //'registers': (BuildContext context) => tableRegister(),
+      //'actives': (BuildContext context) => available(),
+      //'notifications': (BuildContext context) => notification(),
+      //'perfil': (BuildContext context) => perfil(),
+      //},
+
+      navigatorKey: navigatorKey,
+      routes: {
+        notification.route: (context) => const notification(),
+        Login.route: (context) => const Login(),
+        perfil.route: (context) => const perfil(),
+        tableRegister.route: (context) => const tableRegister(),
+        //'/actives': (BuildContext context) => available(),
+        //'/perfil': (BuildContext context) => perfil(),
       },
+
       title: 'Flutter Demo',
       theme: ThemeData(
         // This is the theme of your application.
@@ -57,7 +77,20 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: Login(),
+      home: ChangeNotifierProvider(
+        create: (context) => authProvider,
+        child: FutureBuilder(
+          future: init(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              //* VERIFICAR VALIDEZ DEL TOKEN
+              return authProvider.token != null ? MenuPage() : Login();
+            } else {
+              return const Center(child: CircularProgressIndicator());
+            }
+          },
+        ),
+      ),
     );
   }
 }
@@ -76,7 +109,6 @@ class MyHomePage extends StatefulWidget {
 
   final String title;
 
-  @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 

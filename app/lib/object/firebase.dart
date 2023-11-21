@@ -1,5 +1,6 @@
 import 'dart:convert';
-
+import 'package:app/main.dart';
+import 'package:app/pages/notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -23,9 +24,8 @@ class FirebaseApi {
 
   final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   void handleMessage(RemoteMessage? message) {
-    //if (message == null) return;
-    //navigatorKey.currentState?
-    print('Handling a background message ${message?.messageId}');
+    if (message == null) return;
+    navigatorKey.currentState?.pushNamed(notification.route);
   }
 
   Future<void> initPushNotification() async {
@@ -37,14 +37,15 @@ class FirebaseApi {
     );
 
     firebaseMessaging.getInitialMessage().then((message) {
-      handleMessage(message);
+      //handleMessage(message);
     });
     // Apliacion en 2do plano y se toca la notificacion
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      print("fev ${message.notification}");
+      handleMessage(message);
     });
     // Cuando se recibe el mensaje
     FirebaseMessaging.onMessage.listen((message) {
+      //handleMessage(message);
       showFlutterNotification(message);
     });
     FirebaseMessaging.onBackgroundMessage(backgroundHandler);
@@ -80,6 +81,8 @@ class FirebaseApi {
       initializationSettings,
       onDidReceiveNotificationResponse:
           (NotificationResponse notificationResponse) {
+        navigatorKey.currentState?.pushNamed(notification.route);
+
         //print("fev ${notificationResponse.payload.toString()}");
       },
       //onDidReceiveBackgroundNotificationResponse: notificationTapBackground,

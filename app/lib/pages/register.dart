@@ -1,11 +1,11 @@
 import 'package:app/object/stadistic.dart';
 import 'package:flutter/material.dart';
-//import 'package:app/pages/widget.dart';
 
 import 'package:app/utils/colors.dart';
 
 class tableRegister extends StatefulWidget {
   const tableRegister({super.key});
+  static const route = '/register';
 
   @override
   State<tableRegister> createState() => _tableRegisterState();
