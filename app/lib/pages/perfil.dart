@@ -1,10 +1,14 @@
-import 'dart:ffi';
+import 'dart:convert';
 
+import 'package:app/token/accces_token-dart.dart';
 import 'package:flutter/material.dart';
 import 'package:app/utils/colors.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 
 class perfil extends StatefulWidget {
   const perfil({super.key});
+  static const route = '/perfil';
 
   @override
   State<perfil> createState() => _perfilState();
@@ -14,7 +18,7 @@ class _perfilState extends State<perfil> {
   TextEditingController password = TextEditingController();
   bool _obscureTextone = true;
   bool _obscureTexttwo = true;
-
+  Auth auth = Auth();
   TextEditingController repassword = TextEditingController();
 
   bool editar = false;
@@ -98,6 +102,28 @@ class _perfilState extends State<perfil> {
         ],
       ),
     );
+  }
+
+  Future<void> logout() async {
+    print("token logout: ${auth.token}");
+    final response = await http.post(
+      Uri.parse('http://${dotenv.env['BASE_URL']}:5000/user/logout'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ${auth.token}',
+      },
+    );
+    if (response.statusCode == 200) {
+      Center(child: CircularProgressIndicator());
+    } else {
+      throw Exception('Error Al Cerrar Sesión');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    auth.loadToken();
   }
 
   @override
@@ -209,7 +235,11 @@ class _perfilState extends State<perfil> {
             ),
             editar ? updatePassword(context) : const Text(""),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () async {
+                await logout();
+                await auth.clearToken();
+                Navigator.pushNamed(context, '/login');
+              },
               child: const Text("Cerrar Sesión",
                   style: TextStyle(
                       fontSize: 15,

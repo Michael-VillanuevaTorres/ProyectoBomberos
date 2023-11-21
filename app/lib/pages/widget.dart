@@ -1,5 +1,8 @@
+import 'package:app/main.dart';
+import 'package:app/pages/perfil.dart';
+import 'package:app/token/accces_token-dart.dart';
 import 'package:flutter/material.dart';
-import 'package:app/utils/globals.dart';
+import 'package:app/pages/notifications.dart';
 
 class buttonMenu extends StatefulWidget {
   final Color color;
@@ -19,8 +22,6 @@ class buttonMenu extends StatefulWidget {
 }
 
 class _buttonMenuState extends State<buttonMenu> {
-  int idUser = Globals.returnID(Globals.token);
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -66,7 +67,7 @@ class CustomAppBarAcceso extends StatelessWidget
       actions: [
         IconButton(
           onPressed: () {
-            Navigator.pushNamed(context, 'notifications');
+            navigatorKey.currentState?.pushNamed(notification.route);
           },
           icon: Icon(
             Icons.notifications,
@@ -75,7 +76,7 @@ class CustomAppBarAcceso extends StatelessWidget
         ),
         IconButton(
           onPressed: () {
-            Navigator.pushNamed(context, 'perfil');
+            navigatorKey.currentState?.pushNamed(perfil.route);
           },
           icon: Icon(Icons.settings, color: Colors.white),
         ),

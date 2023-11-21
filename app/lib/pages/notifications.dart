@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'dart:ffi';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -7,6 +5,7 @@ import 'package:app/utils/colors.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class notification extends StatefulWidget {
+  static const route = '/notifications';
   const notification({super.key});
 
   @override
@@ -14,7 +13,6 @@ class notification extends StatefulWidget {
 }
 
 class _notificationState extends State<notification> {
-  late Future<void> _initLoad;
   late List<dynamic> notifications;
   get http => null;
 
@@ -34,7 +32,6 @@ class _notificationState extends State<notification> {
   @override
   void initState() {
     super.initState();
-    //_initLoad = getNotificaciones();
   }
 
   @override
