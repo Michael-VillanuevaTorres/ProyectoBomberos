@@ -21,9 +21,9 @@ class _statisticsState extends State<statistics> {
   Future<void> getStadistics() async {
     try {
       final responseweek = await http
-          .get(Uri.parse('http://127.0.0.1:5000/entrytime/summary/1/1'));
+          .get(Uri.parse('http://perrera.inf.udec.cl:1522/entrytime/summary/1/1'));
       final responsemonth = await http
-          .get(Uri.parse('http://127.0.0.1:5000/entrytime/summary/1/30'));
+          .get(Uri.parse('http://perrera.inf.udec.cl:1522/entrytime/summary/1/30'));
       if (responseweek.statusCode == 200 && responsemonth.statusCode == 200) {
         _statsweek = Datatimes.fromJson(json.decode(responseweek.body));
         _stats = _statsweek;

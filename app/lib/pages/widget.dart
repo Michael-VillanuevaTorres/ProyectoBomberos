@@ -1,53 +1,59 @@
 import 'package:flutter/material.dart';
-import 'package:app/utils/globals.dart';
+import 'package:app/main.dart';
+import 'package:app/pages/perfil.dart';
+import 'package:app/token/accces_token-dart.dart';
+import 'package:flutter/material.dart';
+import 'package:app/pages/notifications.dart';
 
-class buttonMenu extends StatefulWidget {
+class ButtonMenu extends StatefulWidget {
   final Color color;
   final String text;
   final IconData icon;
-  final Function setTime;
+  final Function() onPressed;
   final int type;
-  const buttonMenu({
+
+  const ButtonMenu({
     required this.color,
     required this.text,
     required this.icon,
-    required this.setTime,
+    required this.onPressed,
     required this.type,
   });
+
   @override
-  State<buttonMenu> createState() => _buttonMenuState();
+  _ButtonMenuState createState() => _ButtonMenuState();
 }
 
-class _buttonMenuState extends State<buttonMenu> {
-  int idUser = Globals.returnID(Globals.token);
+class _ButtonMenuState extends State<ButtonMenu> {
 
   @override
   Widget build(BuildContext context) {
+    Color buttonColor = widget.color;
+
     return Container(
       decoration: BoxDecoration(
-        color: widget.color,
+        color: buttonColor,
         borderRadius: BorderRadius.circular(20),
       ),
       width: 200,
       height: 50,
       child: ElevatedButton.icon(
-          style: ElevatedButton.styleFrom(
-            shadowColor: Colors.black,
-            elevation: 7,
-            backgroundColor: widget.color,
-          ),
-          onPressed: () {
-            setState(
-              () {
-                widget.setTime(widget.type, idUser);
-              },
-            );
-          },
-          icon: Icon(widget.icon, color: Colors.white, size: 30),
-          label: Text(
-            widget.text,
-            style: TextStyle(color: Colors.white, fontSize: 20),
-          )),
+        style: ElevatedButton.styleFrom(
+          shadowColor: Colors.black,
+          elevation: 7,
+          backgroundColor: buttonColor,
+        ),
+        onPressed: () {
+          setState(() {
+            widget.onPressed(); // Call the onPressed callback instead of setTime
+          });
+        },
+        icon: Icon(widget.icon, color: Colors.white, size: 30),
+        label: Text(
+          widget.text,
+          style: TextStyle(color: Colors.white, fontSize: 20),
+        ),
+      ),
     );
   }
 }
@@ -66,16 +72,16 @@ class CustomAppBarAcceso extends StatelessWidget
       actions: [
         IconButton(
           onPressed: () {
-            Navigator.pushNamed(context, 'actives');
+            navigatorKey.currentState?.pushNamed(notification.route);
           },
           icon: Icon(
-            Icons.people,
+            Icons.notifications,
             color: Colors.white,
           ),
         ),
         IconButton(
           onPressed: () {
-            Navigator.pushNamed(context, 'perfil');
+            navigatorKey.currentState?.pushNamed(perfil.route);
           },
           icon: Icon(Icons.settings, color: Colors.white),
         ),
@@ -94,7 +100,7 @@ class CustomAppBarAcceso extends StatelessWidget
 
 class Datahour extends StatefulWidget {
   //const Datahour({super.key});
-  DateTime time;
+  String time;
   int register;
   Datahour({required this.time, required this.register});
   @override
@@ -119,7 +125,7 @@ class _DatahourState extends State<Datahour> {
             border: Border.all(color: Colors.black), // Quitar el borde
           ),
           child: Center(
-            child: Text("${widget.time.hour}:${widget.time.minute}"),
+            child: Text("${widget.time}"),
           ),
         ),
       ],

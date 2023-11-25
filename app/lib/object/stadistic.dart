@@ -1,67 +1,63 @@
 import 'dart:convert';
 
-class times {
-  DateTime entryTime;
-  DateTime exitTime;
-  int id;
-  int userId;
-
-  times({
-    required this.entryTime,
-    required this.exitTime,
-    required this.id,
-    required this.userId,
-  });
-
-  factory times.fromRawJson(String str) => times.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
-  factory times.fromJson(Map<String, dynamic> json) => times(
-        entryTime: DateTime.parse(json["entry_time"]),
-        exitTime: DateTime.parse(json["exit_time"]),
-        id: json["id"],
-        userId: json["user_id"],
-      );
-
-  Map<String, dynamic> toJson() => {
-        "entry_time": entryTime.toIso8601String(),
-        "exit_time": exitTime.toIso8601String(),
-        "id": id,
-        "user_id": userId,
-      };
-}
-
-class Datatimes {
+class DateTimes {
   int entryCount;
-  List<times> entrytimes;
-  double totalHoursWorked;
+  List<Entries> entries;
+  String totalHoursWorked;
   int userId;
 
-  Datatimes({
+  DateTimes({
     required this.entryCount,
-    required this.entrytimes,
+    required this.entries,
     required this.totalHoursWorked,
     required this.userId,
   });
 
-  factory Datatimes.fromRawJson(String str) =>
-      Datatimes.fromJson(json.decode(str));
+  factory DateTimes.fromRawJson(String str) =>
+      DateTimes.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory Datatimes.fromJson(Map<String, dynamic> json) => Datatimes(
-        entryCount: json["entry_count"],
-        entrytimes:
-            List<times>.from(json["entrytimes"].map((x) => times.fromJson(x))),
-        totalHoursWorked: json["total_hours_worked"]?.toDouble(),
-        userId: json["user_id"],
-      );
+  factory DateTimes.fromJson(Map<String, dynamic> json) => DateTimes(
+    entryCount: json["entry_count"],
+    entries:
+    List<Entries>.from(json["entries"].map((x) => Entries.fromJson(x))),
+    totalHoursWorked: json["total_hours_worked"],
+    userId: json["user_id"],
+  );
 
   Map<String, dynamic> toJson() => {
-        "entry_count": entryCount,
-        "entrytimes": List<dynamic>.from(entrytimes.map((x) => x.toJson())),
-        "total_hours_worked": totalHoursWorked,
-        "user_id": userId,
-      };
+    "entry_count": entryCount,
+    "entries": List<dynamic>.from(entries.map((x) => x.toJson())),
+    "total_hours_worked": totalHoursWorked,
+    "user_id": userId,
+  };
+}
+
+class Entries {
+  String entryDateTime;
+  String exitDateTime;
+  int id;
+
+  Entries({
+    required this.entryDateTime,
+    required this.exitDateTime,
+    required this.id,
+  });
+
+  factory Entries.fromRawJson(String str) => Entries.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory Entries.fromJson(Map<String, dynamic> json) => Entries(
+    entryDateTime: json["entry_date_time"],
+    exitDateTime: json["exit_date_time"],
+    id: json["id"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "entry_date_time": entryDateTime,
+    "exit_date_time": exitDateTime,
+    "id": id,
+  };
 }
