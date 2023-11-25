@@ -50,7 +50,7 @@ class _LoginState extends State<Login> {
           WidgetsBinding.instance.addPostFrameCallback((_) =>
               Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => MenuPage()),
-                      (Route<dynamic> route) => false));
+                  (Route<dynamic> route) => false));
 
           return const Text("Cargando...");
         } else if (snapshot.hasError) {
@@ -133,7 +133,7 @@ class _LoginState extends State<Login> {
                       ],
                     ),
                     constraints:
-                    const BoxConstraints(maxWidth: 300, maxHeight: 300),
+                        const BoxConstraints(maxWidth: 300, maxHeight: 300),
                     child: Center(
                       child: Image.asset(
                         'assets/escudo-2.png',

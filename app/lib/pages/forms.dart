@@ -48,7 +48,7 @@ class _formsState extends State<forms> {
   }
 
   Widget nivelesNrico(String labelT, GlobalKey<FormState> formKey,
-      TextEditingController controller) =>
+          TextEditingController controller) =>
       Form(
         key: formKey,
         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -123,7 +123,7 @@ class _formsState extends State<forms> {
               value: selected,
               items: types
                   .map((item) =>
-                  DropdownMenuItem(value: item, child: Text(item)))
+                      DropdownMenuItem(value: item, child: Text(item)))
                   .toList(),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -210,7 +210,7 @@ class _formsState extends State<forms> {
                     value: tipo,
                     items: tipoItems
                         .map((item) =>
-                        DropdownMenuItem(value: item, child: Text(item)))
+                            DropdownMenuItem(value: item, child: Text(item)))
                         .toList(),
                     onChanged: (value) {
                       setState(() {
@@ -227,16 +227,16 @@ class _formsState extends State<forms> {
                 tipo == null
                     ? Container()
                     : ElevatedButton(
-                  onPressed: () {
-                    if (validarTodosLosFormularios()) {
-                      // La validación pasó correctamente
-                      print('Form submitted successfully!');
-                    } else {
-                      print('Form validation failed.');
-                    }
-                  },
-                  child: const Text('Enviar'),
-                )
+                        onPressed: () {
+                          if (validarTodosLosFormularios()) {
+                            // La validación pasó correctamente
+                            print('Form submitted successfully!');
+                          } else {
+                            print('Form validation failed.');
+                          }
+                        },
+                        child: const Text('Enviar'),
+                      )
               ],
             ),
           ),

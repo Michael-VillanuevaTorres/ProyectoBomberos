@@ -1,11 +1,11 @@
 import 'package:app/object/stadistic.dart';
 import 'package:flutter/material.dart';
-//import 'package:app/pages/widget.dart';
 
 import 'package:app/utils/colors.dart';
 
 class tableRegister extends StatefulWidget {
   const tableRegister({super.key});
+  static const route = '/register';
 
   @override
   State<tableRegister> createState() => _tableRegisterState();
@@ -14,8 +14,8 @@ class tableRegister extends StatefulWidget {
 class _tableRegisterState extends State<tableRegister> {
   @override
   Widget build(BuildContext context) {
-    final List<times> args =
-        ModalRoute.of(context)!.settings.arguments as List<times>;
+    final List<Entries> args =
+        ModalRoute.of(context)!.settings.arguments as List<Entries>;
     return Scaffold(
       backgroundColor: colorBackground,
       appBar: AppBar(
@@ -74,13 +74,13 @@ class _tableRegisterState extends State<tableRegister> {
                       TableCell(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text("${args[index].entryTime}"),
+                          child: Text("${args[index].entryDateTime}"),
                         ),
                       ),
                       TableCell(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text("${args[index].exitTime}"),
+                          child: Text("${args[index].exitDateTime}"),
                         ),
                       ),
                     ],
