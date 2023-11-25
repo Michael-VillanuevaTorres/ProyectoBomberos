@@ -33,7 +33,6 @@ class _MenuPageState extends State<MenuPage> {
     ];
   }
 
-
   final List<PreferredSizeWidget> _appbar = [
     CustomAppBarAcceso(text: 'Formularios'),
     CustomAppBarAcceso(text: 'Acceso'),
@@ -46,7 +45,6 @@ class _MenuPageState extends State<MenuPage> {
     return Scaffold(
       backgroundColor: colorBackground,
       appBar: _appbar[_currentIndex],
-
       body: WillPopScope(
         onWillPop: () => Future.value(false),
         child: _pages[_currentIndex],
@@ -64,8 +62,7 @@ class _MenuPageState extends State<MenuPage> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.edit_document),
-            label: 'Formularios',
-            //backgroundColor: Colors.red,
+            label: 'Formularios', //backgroundColor: Colors.red,
           ),
           BottomNavigationBarItem(
             //backgroundColor: Colors.green,
@@ -73,7 +70,7 @@ class _MenuPageState extends State<MenuPage> {
             label: 'Inicio',
           ),
           BottomNavigationBarItem(
-            backgroundColor: Colors.blue,
+            //backgroundColor: Colors.white,
             icon: Icon(Icons.analytics),
             label: 'Estadisticas',
           ),
@@ -94,14 +91,14 @@ class home extends StatefulWidget {
 }
 
 class _homeState extends State<home> {
-  int _state=0;
+  int _state = 0;
   Auth auth = Auth();
   int warning = 2;
 
   @override
   void initState() {
     super.initState();
-    _getInitialState();// Llama a _getInitialState() al inicio del estado del widget
+    _getInitialState(); // Llama a _getInitialState() al inicio del estado del widget
     auth.loadToken();
     QrScanner(onQrCodeScanned: handleQrCodeScanned);
   }
@@ -115,7 +112,6 @@ class _homeState extends State<home> {
       },
     );
     if (response.statusCode == 200) {
-
       final List<dynamic> responseData = jsonDecode(response.body);
 
       if (responseData.isNotEmpty) {
@@ -130,7 +126,6 @@ class _homeState extends State<home> {
           });
         }
       } else {
-
         print('Error');
       }
     }
@@ -139,7 +134,9 @@ class _homeState extends State<home> {
   void navigateToQrScanner() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => QrScanner(onQrCodeScanned: handleQrCodeScanned)),
+      MaterialPageRoute(
+          builder: (context) =>
+              QrScanner(onQrCodeScanned: handleQrCodeScanned)),
     );
   }
 
@@ -173,7 +170,7 @@ class _homeState extends State<home> {
               backgroundColor: Colors.green,
               textColor: Colors.white,
               fontSize: 16.0);
-              _state=1;
+          _state = 1;
         } else {
           Fluttertoast.showToast(
               msg: "Error al ingresar hora de entrada",
@@ -203,7 +200,7 @@ class _homeState extends State<home> {
               backgroundColor: Colors.green,
               textColor: Colors.white,
               fontSize: 16.0);
-              _state=0;
+          _state = 0;
         } else {
           Fluttertoast.showToast(
               msg: "Error al ingresar hora de salida",
@@ -262,7 +259,8 @@ class _homeState extends State<home> {
           SizedBox(height: MediaQuery.of(context).size.height * 0.1),
           Visibility(
             visible: _state == 0,
-            child: SizedBox(height: MediaQuery.of(context).size.height * 0.1,
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.1,
               child: ButtonMenu(
                 color: Colors.lightGreen,
                 text: "Entrada",
@@ -274,33 +272,30 @@ class _homeState extends State<home> {
           ),
           Visibility(
             visible: _state == 1,
-            child:
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.1,
-                child:  ButtonMenu(
-                  color: Colors.lightGreen,
-                  text: "Salida",
-                  icon: Icons.login,
-                  onPressed: () => navigateToQrScanner(), // Navigate to QrScanner
-                  type: 2,
-                ),
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.1,
+              child: ButtonMenu(
+                color: Colors.lightGreen,
+                text: "Salida",
+                icon: Icons.login,
+                onPressed: () => navigateToQrScanner(), // Navigate to QrScanner
+                type: 2,
               ),
-
+            ),
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.1),
           Visibility(
             visible: _state == 1,
-            child:
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.1,
-                child:  ButtonMenu(
-                  color: Colors.lightGreen,
-                  text: "Emergencia",
-                  icon: Icons.login,
-                  onPressed: () => navigateToQrScanner(), // Navigate to QrScanner
-                  type: 3,
-                ),
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.1,
+              child: ButtonMenu(
+                color: Colors.lightGreen,
+                text: "Emergencia",
+                icon: Icons.login,
+                onPressed: () => navigateToQrScanner(), // Navigate to QrScanner
+                type: 3,
               ),
+            ),
           ),
         ],
       ),

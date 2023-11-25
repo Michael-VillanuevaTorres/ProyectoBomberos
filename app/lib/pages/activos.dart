@@ -85,7 +85,7 @@ class _availableState extends State<available> {
                 initialSelection: list.first,
                 menuStyle: const MenuStyle(
                   backgroundColor:
-                  MaterialStatePropertyAll<Color>(Colors.white),
+                      MaterialStatePropertyAll<Color>(Colors.white),
                 ),
                 inputDecorationTheme: const InputDecorationTheme(
                   focusColor: Colors.red,
@@ -111,8 +111,8 @@ class _availableState extends State<available> {
                 dropdownMenuEntries: list
                     .map<DropdownMenuEntry<String>>(
                       (String value) =>
-                      DropdownMenuEntry<String>(value: value, label: value),
-                )
+                          DropdownMenuEntry<String>(value: value, label: value),
+                    )
                     .toList(),
               ),
             ),
@@ -171,7 +171,7 @@ class _stateBomberoState extends State<stateBombero> {
     switch (widget.firefighter.state) {
       case 2:
         colorContainer = const Color.fromARGB(255, 255, 174, 52);
-    //print("status : ${status["Emergencia"]}");
+      //print("status : ${status["Emergencia"]}");
       default:
         colorContainer = Colors.green;
     }
@@ -182,7 +182,7 @@ class _stateBomberoState extends State<stateBombero> {
           color: const Color.fromARGB(255, 242, 242, 242),
           borderRadius: const BorderRadius.all(Radius.circular(10)),
           border:
-          Border.all(width: 3, color: colorContainer), // Quitar el borde
+              Border.all(width: 3, color: colorContainer), // Quitar el borde
         ),
         height: 55,
         width: MediaQuery.of(context).size.width * 0.9,

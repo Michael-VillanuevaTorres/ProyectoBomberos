@@ -1,3 +1,6 @@
+import 'package:app/main.dart';
+import 'package:app/pages/perfil.dart';
+import 'package:app/token/accces_token-dart.dart';
 import 'package:flutter/material.dart';
 import 'package:app/main.dart';
 import 'package:app/pages/perfil.dart';
@@ -25,7 +28,6 @@ class ButtonMenu extends StatefulWidget {
 }
 
 class _ButtonMenuState extends State<ButtonMenu> {
-
   @override
   Widget build(BuildContext context) {
     Color buttonColor = widget.color;
@@ -45,7 +47,8 @@ class _ButtonMenuState extends State<ButtonMenu> {
         ),
         onPressed: () {
           setState(() {
-            widget.onPressed(); // Call the onPressed callback instead of setTime
+            widget
+                .onPressed(); // Call the onPressed callback instead of setTime
           });
         },
         icon: Icon(widget.icon, color: Colors.white, size: 30),
