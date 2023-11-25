@@ -95,6 +95,7 @@ class _homeState extends State<home> {
   Auth auth = Auth();
   int warning = 2;
 
+  int idUser = 1; 
   @override
   void initState() {
     super.initState();
@@ -288,13 +289,33 @@ class _homeState extends State<home> {
             visible: _state == 1,
             child: SizedBox(
               height: MediaQuery.of(context).size.height * 0.1,
-              child: ButtonMenu(
-                color: Colors.lightGreen,
-                text: "Emergencia",
-                icon: Icons.login,
-                onPressed: () => navigateToQrScanner(), // Navigate to QrScanner
-                type: 3,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.orange,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                width: 200,
+                height: 50,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    shadowColor: Colors.black,
+                    elevation: 7,
+                    backgroundColor: Colors.orange,
+                  ),
+                  onPressed: () async {
+                    await setWarning();
+                    setState(
+                      () {},
+                    );
+                  },
+                  icon: Icon(Icons.warning, color: Colors.white, size: 30),
+                  label: Text(
+                    "Emergencia",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                ),
               ),
+
             ),
           ),
         ],
