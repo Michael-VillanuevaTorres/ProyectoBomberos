@@ -29,7 +29,7 @@ class _perfilState extends State<perfil> {
   Future<void> changePassword() async {
     try {
       final response = await http.post(
-        Uri.parse('http://${dotenv.env['BASE_URL']}:5000/user/change-password'),
+        Uri.parse('http://${dotenv.env['BASE_URL']}:1522/user/change-password'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer ${auth.token}',
@@ -145,7 +145,7 @@ class _perfilState extends State<perfil> {
     print("token logout: ${auth.token}");
     try {
       final response = await http.post(
-        Uri.parse('http://${dotenv.env['BASE_URL']}:5000/user/logout'),
+        Uri.parse('http://${dotenv.env['BASE_URL']}:1522/user/logout'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer ${auth.token}',

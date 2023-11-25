@@ -8,7 +8,7 @@ import 'package:app/pages/widget.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
+import 'package:app/pages/qrScanner.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class MenuPage extends StatefulWidget {
@@ -87,6 +87,7 @@ class home extends StatefulWidget {
 class _homeState extends State<home> {
   int idUser = 1; //Globals.returnID(Globals.token);
   Auth auth = Auth();
+  int _state = 0;
   //late Future<void> token;
   //Future<void> loadToken() async => await auth.loadToken();
   int warning = 2;
@@ -94,8 +95,54 @@ class _homeState extends State<home> {
   @override
   void initState() {
     super.initState();
+    _getInitialState();
+    QrScanner(onQrCodeScanned: handleQrCodeScanned);
     auth.loadToken();
+
     //setState(() {});
+  }
+  Future<void> _getInitialState() async {
+    final response = await http.get(
+      Uri.parse(
+          'http://perrera.inf.udec.cl:1522/user/?user_id=$idUser'), //Uri.parse('http://perrera.inf.udec.cl:1522/api/v1/fecha'),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode == 200) {
+      final List<dynamic> responseData = jsonDecode(response.body);
+
+      if (responseData.isNotEmpty) {
+        if (responseData[0] is Map<String, dynamic>) {
+          final int state = responseData[0]['state'];
+          setState(() {
+            _state = state;
+          });
+        } else {
+          setState(() {
+            _state = 0;
+          });
+        }
+      } else {
+        print('Error');
+      }
+    }
+  }
+
+  void navigateToQrScanner() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) =>
+              QrScanner(onQrCodeScanned: handleQrCodeScanned)),
+    );
+  }
+
+  void handleQrCodeScanned(String scannedResult) {
+    // Perform actions based on the scanned QR code result
+    // Update _state or perform any other logic
+    // For example, you can call setTime with a type based on the scannedResult
+    setTime(int.parse(scannedResult));
   }
 
   Future<void> setTime(int type) async {
@@ -105,7 +152,7 @@ class _homeState extends State<home> {
         //await Future.delayed(const Duration(seconds: 5));
         final response = await http.post(
           Uri.parse(
-              'http://${dotenv.env['BASE_URL']}:5000/entrytime/'), //Uri.parse('http://127.0.0.1:5000/api/v1/fecha'),
+              'http://${dotenv.env['BASE_URL']}:1522/entrytime/'), //Uri.parse('http://127.0.0.1:5000/api/v1/fecha'),
           headers: <String, String>{
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ${auth.token}',
@@ -121,6 +168,7 @@ class _homeState extends State<home> {
               backgroundColor: Colors.green,
               textColor: Colors.white,
               fontSize: 16.0);
+          _state = 1;
         } else {
           Fluttertoast.showToast(
               msg: "Error al ingresar hora de entrada",
@@ -134,7 +182,7 @@ class _homeState extends State<home> {
       } else {
         final response = await http.post(
           Uri.parse(
-              'http://${dotenv.env['BASE_URL']}:5000/exittime/'), //Uri.parse('http://127.0.0.1:5000/api/v1/fecha'),
+              'http://${dotenv.env['BASE_URL']}:1522/exittime/'), //Uri.parse('http://127.0.0.1:5000/api/v1/fecha'),
           headers: <String, String>{
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ${auth.token}',
@@ -150,6 +198,7 @@ class _homeState extends State<home> {
               backgroundColor: Colors.green,
               textColor: Colors.white,
               fontSize: 16.0);
+          _state = 0;
         } else {
           Fluttertoast.showToast(
               msg: "Error al ingresar hora de salida",
@@ -169,7 +218,7 @@ class _homeState extends State<home> {
   Future<void> setWarning() async {
     try {
       final response = await http.patch(
-        Uri.parse("http://${dotenv.env['BASE_URL']}:5000/user/${idUser}"),
+        Uri.parse("http://${dotenv.env['BASE_URL']}:1522/user/${idUser}"),
         headers: <String, String>{
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${auth.token}',
@@ -205,49 +254,64 @@ class _homeState extends State<home> {
     return Center(
       child: Column(
         children: [
-          SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-          buttonMenu(
-            color: Colors.lightGreen,
-            text: "Entrada",
-            icon: Icons.login,
-            setTime: setTime,
-            type: 1,
-          ),
-          SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-          buttonMenu(
-            color: Colors.red,
-            text: "Salida",
-            icon: Icons.logout,
-            setTime: setTime,
-            type: 2,
-          ),
-          SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.orange,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            width: 200,
-            height: 50,
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                shadowColor: Colors.black,
-                elevation: 7,
-                backgroundColor: Colors.orange,
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.1,),
+            Visibility(
+              visible: _state == 0,
+              child: buttonMenu(
+                  color: Colors.lightGreen,
+                  text: "Entrada",
+                  icon: Icons.login,
+                  onPressed: () => navigateToQrScanner(),
+                  type: 1,
               ),
-              onPressed: () async {
-                await setWarning();
-                setState(
-                  () {},
-                );
-              },
-              icon: Icon(Icons.warning, color: Colors.white, size: 30),
-              label: Text(
-                "Emergencia",
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              ),
+          ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.1,),
+          Visibility(
+            visible: _state == 1,
+            child:buttonMenu(
+                color: Colors.red,
+                text: "Salida",
+                icon: Icons.logout,
+                onPressed: () => navigateToQrScanner(),
+                type: 2,
+
             ),
           ),
+      SizedBox(
+        height: MediaQuery.of(context).size.height * 0.1,),
+          Visibility(
+            visible: _state == 1,
+            child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.orange,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                width: 200,
+                height: 50,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    shadowColor: Colors.black,
+                    elevation: 7,
+                    backgroundColor: Colors.orange,
+                  ),
+                  onPressed: () async {
+                    await setWarning();
+                    setState(
+                          () {},
+                    );
+                  },
+                  icon: Icon(Icons.warning, color: Colors.white, size: 30),
+                  label: Text(
+                    "Emergencia",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+
+              ),
+            ),
+          ),
+
         ],
       ),
     );

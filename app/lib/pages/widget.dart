@@ -8,13 +8,13 @@ class buttonMenu extends StatefulWidget {
   final Color color;
   final String text;
   final IconData icon;
-  final Function setTime;
+  final Function onPressed;
   final int type;
   const buttonMenu({
     required this.color,
     required this.text,
     required this.icon,
-    required this.setTime,
+    required this.onPressed,
     required this.type,
   });
   @override
@@ -38,11 +38,10 @@ class _buttonMenuState extends State<buttonMenu> {
             backgroundColor: widget.color,
           ),
           onPressed: () {
-            setState(
-              () {
-                widget.setTime(widget.type);
-              },
-            );
+            setState(() {
+              widget
+                  .onPressed(); // Call the onPressed callback instead of setTime
+            });
           },
           icon: Icon(widget.icon, color: Colors.white, size: 30),
           label: Text(

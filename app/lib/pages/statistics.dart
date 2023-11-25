@@ -32,9 +32,9 @@ class _statisticsState extends State<statistics> {
   Future<void> getStadistics() async {
     try {
       final responseweek = await http.get(Uri.parse(
-          'http://${dotenv.env['BASE_URL']}:5000/entrytime/summary/1/2'));
+          'http://${dotenv.env['BASE_URL']}:1522/entrytime/summary/1/2'));
       final responsemonth = await http.get(Uri.parse(
-          'http://${dotenv.env['BASE_URL']}:5000/entrytime/summary/1/30'));
+          'http://${dotenv.env['BASE_URL']}:1522/entrytime/summary/1/30'));
       if (responseweek.statusCode == 200 && responsemonth.statusCode == 200) {
         _statsweek = DateTimes.fromJson(json.decode(responseweek.body));
         _stats = _statsweek;

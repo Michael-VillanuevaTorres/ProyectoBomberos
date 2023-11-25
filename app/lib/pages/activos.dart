@@ -23,11 +23,11 @@ class _availableState extends State<available> {
   Future<void> getUser(int option) async {
     try {
       final responseActive = await http.get(Uri.parse(
-          "http://${dotenv.env['BASE_URL']}:5000/user/users_by_state/1"));
+          "http://${dotenv.env['BASE_URL']}:1522/user/users_by_state/1"));
       activeUser = json.decode(responseActive.body);
 
       final responseWarning = await http.get(Uri.parse(
-          "http://${dotenv.env['BASE_URL']}:5000/user/users_by_state/2"));
+          "http://${dotenv.env['BASE_URL']}:1522/user/users_by_state/2"));
       warningUser = json.decode(responseWarning.body);
       if (responseActive.statusCode == 200 &&
           responseWarning.statusCode == 200) {

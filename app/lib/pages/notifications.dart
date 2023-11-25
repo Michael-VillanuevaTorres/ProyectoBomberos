@@ -19,7 +19,7 @@ class _notificationState extends State<notification> {
   Future<void> getNotificaciones() async {
     try {
       final response = await http.get(Uri.parse(
-          "http://${dotenv.env['BASE_URL']}:5000/user/users_by_state/1"));
+          "http://${dotenv.env['BASE_URL']}:1522/user/users_by_state/1"));
       if (response.statusCode == 200) {}
 
       //return list.where((element) => element.state == value).toList();
