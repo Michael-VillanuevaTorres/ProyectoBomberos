@@ -101,6 +101,7 @@ class _homeState extends State<home> {
 
     //setState(() {});
   }
+
   Future<void> _getInitialState() async {
     final response = await http.get(
       Uri.parse(
@@ -142,7 +143,15 @@ class _homeState extends State<home> {
     // Perform actions based on the scanned QR code result
     // Update _state or perform any other logic
     // For example, you can call setTime with a type based on the scannedResult
-    setTime(int.parse(scannedResult));
+    print(scannedResult);
+    if(scannedResult=="Entrada" ){
+      setTime(1);
+    }
+
+    if(scannedResult=="Salida"  ) {
+      setTime(0);
+    }
+
   }
 
   Future<void> setTime(int type) async {
@@ -168,7 +177,7 @@ class _homeState extends State<home> {
               backgroundColor: Colors.green,
               textColor: Colors.white,
               fontSize: 16.0);
-          _state = 1;
+          _getInitialState();
         } else {
           Fluttertoast.showToast(
               msg: "Error al ingresar hora de entrada",
@@ -198,7 +207,7 @@ class _homeState extends State<home> {
               backgroundColor: Colors.green,
               textColor: Colors.white,
               fontSize: 16.0);
-          _state = 0;
+          _getInitialState();
         } else {
           Fluttertoast.showToast(
               msg: "Error al ingresar hora de salida",
@@ -234,6 +243,7 @@ class _homeState extends State<home> {
             backgroundColor: Colors.green,
             textColor: Colors.white,
             fontSize: 16.0);
+        _state = 0;
       } else {
         Fluttertoast.showToast(
             msg: "Error al cambiar estado",
@@ -255,63 +265,63 @@ class _homeState extends State<home> {
       child: Column(
         children: [
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.1,),
-            Visibility(
-              visible: _state == 0,
-              child: buttonMenu(
-                  color: Colors.lightGreen,
-                  text: "Entrada",
-                  icon: Icons.login,
-                  onPressed: () => navigateToQrScanner(),
-                  type: 1,
-              ),
+            height: MediaQuery.of(context).size.height * 0.1,
           ),
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.1,),
           Visibility(
-            visible: _state == 1,
-            child:buttonMenu(
-                color: Colors.red,
-                text: "Salida",
-                icon: Icons.logout,
-                onPressed: () => navigateToQrScanner(),
-                type: 2,
-
+            visible: _state == 0,
+            child: buttonMenu(
+              color: Colors.lightGreen,
+              text: "Entrada",
+              icon: Icons.login,
+              onPressed: () => navigateToQrScanner(),
+              type: 1,
             ),
           ),
-      SizedBox(
-        height: MediaQuery.of(context).size.height * 0.1,),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.1,
+          ),
+          Visibility(
+            visible: _state == 1,
+            child: buttonMenu(
+              color: Colors.red,
+              text: "Salida",
+              icon: Icons.logout,
+              onPressed: () => navigateToQrScanner(),
+              type: 2,
+            ),
+          ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.1,
+          ),
           Visibility(
             visible: _state == 1,
             child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.orange,
-                  borderRadius: BorderRadius.circular(20),
+              decoration: BoxDecoration(
+                color: Colors.orange,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              width: 200,
+              height: 50,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  shadowColor: Colors.black,
+                  elevation: 7,
+                  backgroundColor: Colors.orange,
                 ),
-                width: 200,
-                height: 50,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    shadowColor: Colors.black,
-                    elevation: 7,
-                    backgroundColor: Colors.orange,
-                  ),
-                  onPressed: () async {
-                    await setWarning();
-                    setState(
-                          () {},
-                    );
-                  },
-                  icon: Icon(Icons.warning, color: Colors.white, size: 30),
-                  label: Text(
-                    "Emergencia",
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-
+                onPressed: () async {
+                  await setWarning();
+                  setState(
+                    () {},
+                  );
+                },
+                icon: Icon(Icons.warning, color: Colors.white, size: 30),
+                label: Text(
+                  "Emergencia",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
               ),
             ),
           ),
-
         ],
       ),
     );

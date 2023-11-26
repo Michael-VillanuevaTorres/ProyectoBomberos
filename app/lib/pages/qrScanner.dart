@@ -19,6 +19,7 @@ class _QrScannerState extends State<QrScanner> {
   QRViewController? controller;
   Barcode? result;
   String scannedCode = '';
+  bool scannedFlag = false;
 
   @override
   void reassemble() {
@@ -155,6 +156,14 @@ class _QrScannerState extends State<QrScanner> {
       setState(() {
         result = scanData;
       });
+      if (!scannedFlag) {
+        if ((result!.code).toString() == "Entrada" || (result!.code).toString() == "Salida") {
+          widget.onQrCodeScanned((result!.code).toString());
+          Navigator.pop(context);
+          scannedFlag = true;
+        }
+      }
+
     });
   }
 }
