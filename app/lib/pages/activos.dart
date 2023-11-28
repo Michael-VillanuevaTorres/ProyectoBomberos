@@ -4,9 +4,11 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+// Estados posible de un bombero
 const status = {
   "Emergencia": 2,
   "Disponible": 1,
+  "Desconectado": 0,
 };
 
 class available extends StatefulWidget {
@@ -15,56 +17,52 @@ class available extends StatefulWidget {
 }
 
 class _availableState extends State<available> {
+  // Variables para almacenar los bomberos activos y en emergencia
   late Future<void> _initLoad;
   late List<dynamic> users;
   late List<dynamic> activeUser;
   late List<dynamic> warningUser;
 
+  // Obtener bomberos según la opción seleccionada en el dropdown
+  // Option : 0 -> Todos, 1 -> Activos, 2 -> Emergencia
   Future<void> getUser(int option) async {
     try {
+      // Obtener bomberos activos mediante la API
       final responseActive = await http.get(Uri.parse(
           "http://${dotenv.env['BASE_URL']}:5000/user/users_by_state/1"));
       activeUser = json.decode(responseActive.body);
 
+      //* OBTENER LOS BOMBEROS EN EMERGENCIA DESDE LA API
       final responseWarning = await http.get(Uri.parse(
           "http://${dotenv.env['BASE_URL']}:5000/user/users_by_state/2"));
       warningUser = json.decode(responseWarning.body);
+
+      // Si la respuesta es 200, se almacenan los bomberos en sus respectivas listas
       if (responseActive.statusCode == 200 &&
           responseWarning.statusCode == 200) {
         setState(() {
           activeUser = activeUser.map((user) => User.fromJson(user)).toList();
           warningUser = warningUser.map((user) => User.fromJson(user)).toList();
-          if (option == 0) {
-            users = activeUser + warningUser;
-          }
-          if (option == 1) {
-            users = activeUser;
-          }
-          if (option == 2) {
-            users = warningUser;
-          }
+          if (option == 0) users = activeUser + warningUser;
+          if (option == 1) users = activeUser;
+          if (option == 2) users = warningUser;
         });
       }
-      // Si la solicitud es exitosa y el estado es 200 (OK), analizamos los datos
-      //List users = json.decode(response_active.body);
-      // Convertir la lista dinámica a una lista de Map<String, dynamic>
-      //if (value == 0) {
-      //}
-      //return list.where((element) => element.state == value).toList();
     } catch (error) {
-      // Manejo de errores de la solicitud
       throw Exception('Failed to load User');
     }
   }
 
+  // Método llamado al iniciar el estado del widget
   @override
   void initState() {
     super.initState();
     _initLoad = getUser(0);
   }
 
+// lista de opciones del dropdown
   List<String> list = <String>['Todos', 'Activos', 'Emergencia'];
-  int? dropdownValue = 0;
+  int? dropdownValue = 0; // valor incial del dropdown
 
   @override
   Widget build(BuildContext context) {
@@ -92,6 +90,7 @@ class _availableState extends State<available> {
                 ),
                 onSelected: (String? value) {
                   setState(() {
+                    //* AL SELECCIONAR UN VALOR SE ACTUALIZA LA LISTA DE BOMBEROS
                     switch (value) {
                       case "Todos":
                         users = activeUser + warningUser;
@@ -117,6 +116,7 @@ class _availableState extends State<available> {
               ),
             ),
           ),
+          //* LISTAR BOMBEROS
           Expanded(
             child: FutureBuilder(
               future: _initLoad,
@@ -130,7 +130,7 @@ class _availableState extends State<available> {
                               itemCount: users.length,
                               itemBuilder: (BuildContext context, int index) {
                                 final item = users[index];
-                                return stateBombero(firefighter: item);
+                                return stateBombero(context, item);
                               }));
                     }
                   case ConnectionState.waiting:
@@ -155,7 +155,7 @@ class _availableState extends State<available> {
   }
 }
 
-class stateBombero extends StatefulWidget {
+/*class stateBombero extends StatefulWidget {
   User firefighter;
   stateBombero({required this.firefighter});
 
@@ -163,68 +163,64 @@ class stateBombero extends StatefulWidget {
   State<stateBombero> createState() => _stateBomberoState();
 }
 
-class _stateBomberoState extends State<stateBombero> {
-  @override
-  Widget build(BuildContext context) {
-    // User P = widget.firefighter;
-    Color colorContainer;
-    switch (widget.firefighter.state) {
-      case 2:
-        colorContainer = const Color.fromARGB(255, 255, 174, 52);
-      //print("status : ${status["Emergencia"]}");
-      default:
-        colorContainer = Colors.green;
-    }
-
-    return Center(
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 242, 242, 242),
-          borderRadius: const BorderRadius.all(Radius.circular(10)),
-          border:
-              Border.all(width: 3, color: colorContainer), // Quitar el borde
-        ),
-        height: 55,
-        width: MediaQuery.of(context).size.width * 0.9,
-        margin: const EdgeInsets.only(top: 10, left: 20, right: 20),
-        child: Row(
-          children: [
-            Container(
-              margin: const EdgeInsets.only(left: 10, right: 20),
-              child: const CircleAvatar(
-                maxRadius: 20,
-                backgroundImage: NetworkImage(""), // insertar imagen de perfil
-              ),
-            ),
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.only(top: 4),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    if (widget.firefighter.state == status["Emergencia"])
-                      const Text(
-                        "Emergencia",
-                        style: TextStyle(fontSize: 10, color: Colors.grey),
-                      )
-                    else
-                      const Text(
-                        "Dispobible",
-                        style: TextStyle(fontSize: 10, color: Colors.grey),
-                      ),
-                    Text(
-                      "${widget.firefighter.firstName} ${widget.firefighter.lastName}",
-                      style: const TextStyle(fontSize: 15),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+class _stateBomberoState extends State<stateBombero> {*/
+Widget stateBombero(BuildContext context, User firefighter) {
+  // User P = widget.firefighter;
+  Color colorContainer;
+  switch (firefighter.state) {
+    case 2:
+      colorContainer = const Color.fromARGB(255, 255, 174, 52);
+    default:
+      colorContainer = Colors.green;
   }
+
+  return Center(
+    child: Container(
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 242, 242, 242),
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        border: Border.all(width: 3, color: colorContainer), // Quitar el borde
+      ),
+      height: 55,
+      width: MediaQuery.of(context).size.width * 0.9,
+      margin: const EdgeInsets.only(top: 10, left: 20, right: 20),
+      child: Row(
+        children: [
+          Container(
+            margin: const EdgeInsets.only(left: 10, right: 20),
+            child: const CircleAvatar(
+              maxRadius: 20,
+              backgroundImage: NetworkImage(""), // insertar imagen de perfil
+            ),
+          ),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.only(top: 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  if (firefighter.state == status["Emergencia"])
+                    const Text(
+                      "Emergencia",
+                      style: TextStyle(fontSize: 10, color: Colors.grey),
+                    )
+                  else
+                    const Text(
+                      "Dispobible",
+                      style: TextStyle(fontSize: 10, color: Colors.grey),
+                    ),
+                  Text(
+                    "${firefighter.firstName} ${firefighter.lastName}",
+                    style: const TextStyle(fontSize: 15),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }
