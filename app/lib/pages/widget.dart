@@ -3,6 +3,13 @@ import 'package:app/pages/perfil.dart';
 import 'package:app/token/accces_token-dart.dart';
 import 'package:flutter/material.dart';
 import 'package:app/pages/notifications.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+
+int returnId(String? token) {
+  if (token == null) return -1;
+  Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+  return decodedToken["sub"];
+}
 
 class buttonMenu extends StatefulWidget {
   final Color color;

@@ -85,7 +85,6 @@ class home extends StatefulWidget {
 }
 
 class _homeState extends State<home> {
-  int idUser = 1; //Globals.returnID(Globals.token);
   Auth auth = Auth();
   int _state = 0;
   //late Future<void> token;
@@ -103,6 +102,7 @@ class _homeState extends State<home> {
   }
 
   Future<void> _getInitialState() async {
+    int idUser = returnId(auth.token);
     final response = await http.get(
       Uri.parse(
           'http://perrera.inf.udec.cl:1522/user/?user_id=$idUser'), //Uri.parse('http://perrera.inf.udec.cl:1522/api/v1/fecha'),
@@ -117,6 +117,7 @@ class _homeState extends State<home> {
         if (responseData[0] is Map<String, dynamic>) {
           final int state = responseData[0]['state'];
           setState(() {
+            print(state);
             _state = state;
           });
         } else {
@@ -155,6 +156,7 @@ class _homeState extends State<home> {
   }
 
   Future<void> setTime(int type) async {
+    int idUser = returnId(auth.token);
     try {
       if (type == 1) {
         print("Token de entradas es:  ${auth.token}");
@@ -225,14 +227,14 @@ class _homeState extends State<home> {
   }
 
   Future<void> setWarning() async {
+    int idUser = returnId(auth.token);
     try {
-      final response = await http.patch(
-        Uri.parse("http://${dotenv.env['BASE_URL']}:1522/user/${idUser}"),
+      final response = await http.put(
+        Uri.parse("http://${dotenv.env['BASE_URL']}:1522/user/${idUser}/emergency"),
         headers: <String, String>{
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${auth.token}',
-        },
-        body: jsonEncode(<String, int>{'state': warning}),
+        }
       );
       if (response.statusCode == 200) {
         Fluttertoast.showToast(
@@ -243,7 +245,7 @@ class _homeState extends State<home> {
             backgroundColor: Colors.green,
             textColor: Colors.white,
             fontSize: 16.0);
-        _state = 0;
+        _getInitialState();
       } else {
         Fluttertoast.showToast(
             msg: "Error al cambiar estado",
@@ -294,7 +296,7 @@ class _homeState extends State<home> {
             height: MediaQuery.of(context).size.height * 0.1,
           ),
           Visibility(
-            visible: _state == 1,
+            visible: _state == 2 || _state== 1,
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.orange,
