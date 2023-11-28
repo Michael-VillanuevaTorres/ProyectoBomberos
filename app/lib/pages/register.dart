@@ -1,6 +1,5 @@
 import 'package:app/object/stadistic.dart';
 import 'package:flutter/material.dart';
-
 import 'package:app/utils/colors.dart';
 
 class tableRegister extends StatefulWidget {
@@ -14,8 +13,11 @@ class tableRegister extends StatefulWidget {
 class _tableRegisterState extends State<tableRegister> {
   @override
   Widget build(BuildContext context) {
+    // Obtener argumentos pasados a través de la ruta de navegación
     final List<Entries> args =
         ModalRoute.of(context)!.settings.arguments as List<Entries>;
+
+    // Construcción de la interfaz de usuario
     return Scaffold(
       backgroundColor: colorBackground,
       appBar: AppBar(
@@ -30,7 +32,6 @@ class _tableRegisterState extends State<tableRegister> {
           ),
         ),
       ),
-      //_appbar[_currentIndex],
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
@@ -44,6 +45,7 @@ class _tableRegisterState extends State<tableRegister> {
                     color: Color.fromARGB(255, 239, 224, 86),
                   ),
                   children: [
+                    // Encabezado de la tabla
                     TableCell(
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
@@ -64,6 +66,7 @@ class _tableRegisterState extends State<tableRegister> {
                     ),
                   ],
                 ),
+                // Filas de la tabla generadas dinámicamente según los datos pasados como argumentos
                 ...List.generate(
                   args.length,
                   (index) => TableRow(
@@ -90,19 +93,7 @@ class _tableRegisterState extends State<tableRegister> {
             ),
           ),
         ),
-      ), /*AppBar(
-        backgroundColor: Colors.black,
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.person, color: Colors.white),
-          ),
-        ],
-        title: const Text(
-          'Acceso',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),*/
+      ),
     );
   }
 }

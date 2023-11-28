@@ -1,3 +1,4 @@
+import 'package:app/object/users.dart';
 import 'package:app/pages/activos.dart';
 import 'package:app/pages/forms.dart';
 import 'package:app/token/accces_token-dart.dart';
@@ -8,6 +9,7 @@ import 'package:app/pages/widget.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -28,7 +30,7 @@ class _MenuPageState extends State<MenuPage> {
   ];
 
   final List<PreferredSizeWidget> _appbar = [
-    CustomAppBarAcceso(text: 'Formularios'),
+    CustomAppBarAcceso(text: 'Formulario Bitacora'),
     CustomAppBarAcceso(text: 'Acceso'),
     CustomAppBarAcceso(text: 'Estadísticas'),
     CustomAppBarAcceso(text: 'Bomberos'),
@@ -85,27 +87,56 @@ class home extends StatefulWidget {
 }
 
 class _homeState extends State<home> {
-  int idUser = 1; //Globals.returnID(Globals.token);
+  late User usuario;
+  //late Future<void> _initLoad;
+  //Globals.returnID(Globals.token);
   Auth auth = Auth();
-  //late Future<void> token;
-  //Future<void> loadToken() async => await auth.loadToken();
+
+  Future<void> getTokenInfo() async {
+    await auth.loadToken();
+    await getUserInfo();
+  }
+
   int warning = 2;
 
   @override
   void initState() {
     super.initState();
-    auth.loadToken();
-    //setState(() {});
+    getTokenInfo();
+  }
+
+  Future<void> getUserInfo() async {
+    try {
+      int idUser = returnId(auth.token);
+      final response = await http.get(
+        Uri.parse('http://${dotenv.env['BASE_URL']}:5000/user/${idUser}'),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          //'Authorization': 'Bearer ${auth.token}',
+        },
+      );
+      if (response.statusCode == 200) {
+        usuario = User.fromJson(json.decode(response.body));
+
+        // Almacena la información del usuario localmente
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('firstName', usuario.firstName);
+        prefs.setString('email', usuario.email);
+        prefs.setString('lastName', usuario.lastName);
+        prefs.setString('role', usuario.role);
+        prefs.setString('userName', usuario.userName);
+      }
+    } catch (e) {
+      throw Exception("Error al cargar usuario");
+    }
   }
 
   Future<void> setTime(int type) async {
+    int idUser = returnId(auth.token);
     try {
       if (type == 1) {
-        print("Token de entradas es:  ${auth.token}");
-        //await Future.delayed(const Duration(seconds: 5));
         final response = await http.post(
-          Uri.parse(
-              'http://${dotenv.env['BASE_URL']}:5000/entrytime/'), //Uri.parse('http://127.0.0.1:5000/api/v1/fecha'),
+          Uri.parse('http://${dotenv.env['BASE_URL']}:5000/entrytime/'),
           headers: <String, String>{
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ${auth.token}',
@@ -167,6 +198,7 @@ class _homeState extends State<home> {
   }
 
   Future<void> setWarning() async {
+    int idUser = returnId(auth.token);
     try {
       final response = await http.patch(
         Uri.parse("http://${dotenv.env['BASE_URL']}:5000/user/${idUser}"),
