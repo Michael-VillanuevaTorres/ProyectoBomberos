@@ -5,6 +5,7 @@ import 'package:app/utils/colors.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class perfil extends StatefulWidget {
   const perfil({super.key});
@@ -16,7 +17,12 @@ class perfil extends StatefulWidget {
 
 class _perfilState extends State<perfil> {
   bool _mostrarIndicadorCarga = false;
-
+  String firstName = "";
+  String lastName = "";
+  String email = "";
+  String userName = "";
+  String role = "";
+  //String? firstName, lastName, email, userName, role; // = "";
   bool _obscureTextone = true;
   bool _obscureTexttwo = true;
   Auth auth = Auth();
@@ -26,7 +32,7 @@ class _perfilState extends State<perfil> {
 
   bool editar = false;
 
-  Future<void> changePassword() async {
+  Future<void> changePassword(BuildContext context) async {
     try {
       final response = await http.post(
         Uri.parse('http://${dotenv.env['BASE_URL']}:1522/user/change-password'),
@@ -49,6 +55,9 @@ class _perfilState extends State<perfil> {
             backgroundColor: Colors.green,
             textColor: Colors.white,
             fontSize: 16.0);
+        await logout(context);
+        await auth.clearToken();
+        Navigator.pushNamed(context, '/login');
       } else {
         Fluttertoast.showToast(
             msg: responseData['error'],
@@ -122,10 +131,7 @@ class _perfilState extends State<perfil> {
                       const SnackBar(content: Text('Existen campos vacios')));
                   // Validate returns true if the form is valid, or false otherwise.
                 } else {
-                  await changePassword();
-                  await logout();
-                  await auth.clearToken();
-                  Navigator.pushNamed(context, '/login');
+                  await changePassword(context);
                 }
               },
               child: const Text('Cambiar'),
@@ -136,7 +142,9 @@ class _perfilState extends State<perfil> {
     );
   }
 
-  Future<void> logout() async {
+  Future<void> logout(BuildContext context) async {
+    Navigator.pushNamed(context, '/login');
+
     setState(
       () {
         _mostrarIndicadorCarga = true;
@@ -161,6 +169,8 @@ class _perfilState extends State<perfil> {
             backgroundColor: Colors.green,
             textColor: Colors.white,
             fontSize: 16.0);
+        //await auth.clearToken();
+        Navigator.pushNamed(context, '/login');
       } else {
         Fluttertoast.showToast(
             msg: "Error al cerrar sesión",
@@ -172,7 +182,7 @@ class _perfilState extends State<perfil> {
             fontSize: 12.0);
       }
     } catch (e) {
-      throw Exception('Error Al Cerrar Sesión');
+      throw Exception(e);
     } finally {
       // Oculta el indicador de carga después de la solicitud
       setState(
@@ -183,10 +193,22 @@ class _perfilState extends State<perfil> {
     }
   }
 
+  Future<void> _obtenerInformacion(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      firstName = prefs.getString('firstName')!;
+      lastName = prefs.getString('lastName')!;
+      email = prefs.getString('email')!;
+      role = prefs.getString('role')!;
+      userName = prefs.getString('userName')!;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     auth.loadToken();
+    _obtenerInformacion(context);
   }
 
   @override
@@ -219,14 +241,14 @@ class _perfilState extends State<perfil> {
               ),
               Container(
                 margin: const EdgeInsets.only(top: 20),
-                child: const Text(
-                  "Micheal Scott",
+                child: Text(
+                  "$firstName $lastName",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
               Container(
-                child: const Text(
-                  "Administrador",
+                child: Text(
+                  role,
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -240,8 +262,8 @@ class _perfilState extends State<perfil> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 margin: const EdgeInsets.only(top: 20),
-                child: const Text(
-                  "Correo",
+                child: Text(
+                  "Correo: $email",
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -255,8 +277,8 @@ class _perfilState extends State<perfil> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 margin: const EdgeInsets.only(top: 5),
-                child: const Text(
-                  "Correo",
+                child: Text(
+                  "Usuario : $userName",
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -303,9 +325,7 @@ class _perfilState extends State<perfil> {
               editar ? updatePassword(context) : const Text(""),
               ElevatedButton(
                 onPressed: () async {
-                  await logout();
-                  await auth.clearToken();
-                  Navigator.pushNamed(context, '/login');
+                  await logout(context);
                 },
                 child: const Text("Cerrar Sesión",
                     style: TextStyle(

@@ -1,3 +1,4 @@
+import 'package:app/object/users.dart';
 import 'package:app/pages/activos.dart';
 import 'package:app/pages/forms.dart';
 import 'package:app/token/accces_token-dart.dart';
@@ -9,6 +10,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:app/pages/qrScanner.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:fluttertoast/fluttertoast.dart';
 
 class MenuPage extends StatefulWidget {
@@ -28,7 +31,7 @@ class _MenuPageState extends State<MenuPage> {
   ];
 
   final List<PreferredSizeWidget> _appbar = [
-    CustomAppBarAcceso(text: 'Formularios'),
+    CustomAppBarAcceso(text: 'Formulario Bitacora'),
     CustomAppBarAcceso(text: 'Acceso'),
     CustomAppBarAcceso(text: 'Estadísticas'),
     CustomAppBarAcceso(text: 'Bomberos'),
@@ -89,6 +92,13 @@ class _homeState extends State<home> {
   int _state = 0;
   //late Future<void> token;
   //Future<void> loadToken() async => await auth.loadToken();
+  late User usuario;
+
+  Future<void> getTokenInfo() async {
+    await auth.loadToken();
+    await getUserInfo();
+  }
+
   int warning = 2;
 
   @override
@@ -97,8 +107,33 @@ class _homeState extends State<home> {
     _getInitialState();
     QrScanner(onQrCodeScanned: handleQrCodeScanned);
     auth.loadToken();
+    getTokenInfo();
+  }
 
-    //setState(() {});
+  Future<void> getUserInfo() async {
+    try {
+      int idUser = returnId(auth.token);
+      final response = await http.get(
+        Uri.parse('http://${dotenv.env['BASE_URL']}:5000/user/${idUser}'),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          //'Authorization': 'Bearer ${auth.token}',
+        },
+      );
+      if (response.statusCode == 200) {
+        usuario = User.fromJson(json.decode(response.body));
+
+        // Almacena la información del usuario localmente
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('firstName', usuario.firstName);
+        prefs.setString('email', usuario.email);
+        prefs.setString('lastName', usuario.lastName);
+        prefs.setString('role', usuario.role);
+        prefs.setString('userName', usuario.userName);
+      }
+    } catch (e) {
+      throw Exception("Error al cargar usuario");
+    }
   }
 
   Future<void> _getInitialState() async {
@@ -145,22 +180,19 @@ class _homeState extends State<home> {
     // Update _state or perform any other logic
     // For example, you can call setTime with a type based on the scannedResult
     print(scannedResult);
-    if(scannedResult=="Entrada" ){
+    if (scannedResult == "Entrada") {
       setTime(1);
     }
 
-    if(scannedResult=="Salida"  ) {
+    if (scannedResult == "Salida") {
       setTime(0);
     }
-
   }
 
   Future<void> setTime(int type) async {
     int idUser = returnId(auth.token);
     try {
       if (type == 1) {
-        print("Token de entradas es:  ${auth.token}");
-        //await Future.delayed(const Duration(seconds: 5));
         final response = await http.post(
           Uri.parse(
               'http://${dotenv.env['BASE_URL']}:1522/entrytime/'), //Uri.parse('http://127.0.0.1:5000/api/v1/fecha'),
@@ -230,12 +262,12 @@ class _homeState extends State<home> {
     int idUser = returnId(auth.token);
     try {
       final response = await http.put(
-        Uri.parse("http://${dotenv.env['BASE_URL']}:1522/user/${idUser}/emergency"),
-        headers: <String, String>{
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${auth.token}',
-        }
-      );
+          Uri.parse(
+              "http://${dotenv.env['BASE_URL']}:1522/user/${idUser}/emergency"),
+          headers: <String, String>{
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${auth.token}',
+          });
       if (response.statusCode == 200) {
         Fluttertoast.showToast(
             msg: "Cambiado a estado de emergencia",
@@ -296,7 +328,7 @@ class _homeState extends State<home> {
             height: MediaQuery.of(context).size.height * 0.1,
           ),
           Visibility(
-            visible: _state == 2 || _state== 1,
+            visible: _state == 2 || _state == 1,
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.orange,
