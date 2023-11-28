@@ -104,7 +104,6 @@ class _homeState extends State<home> {
   @override
   void initState() {
     super.initState();
-    _getInitialState();
     QrScanner(onQrCodeScanned: handleQrCodeScanned);
     auth.loadToken();
     getTokenInfo();
@@ -114,7 +113,7 @@ class _homeState extends State<home> {
     try {
       int idUser = returnId(auth.token);
       final response = await http.get(
-        Uri.parse('http://${dotenv.env['BASE_URL']}:5000/user/${idUser}'),
+        Uri.parse('http://${dotenv.env['BASE_URL']}:1522/user/${idUser}'),
         headers: <String, String>{
           'Content-Type': 'application/json',
           //'Authorization': 'Bearer ${auth.token}',
@@ -130,39 +129,13 @@ class _homeState extends State<home> {
         prefs.setString('lastName', usuario.lastName);
         prefs.setString('role', usuario.role);
         prefs.setString('userName', usuario.userName);
+        setState(() {
+          _state = usuario.state;
+        });
+
       }
     } catch (e) {
       throw Exception("Error al cargar usuario");
-    }
-  }
-
-  Future<void> _getInitialState() async {
-    int idUser = returnId(auth.token);
-    final response = await http.get(
-      Uri.parse(
-          'http://perrera.inf.udec.cl:1522/user/?user_id=$idUser'), //Uri.parse('http://perrera.inf.udec.cl:1522/api/v1/fecha'),
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-      },
-    );
-    if (response.statusCode == 200) {
-      final List<dynamic> responseData = jsonDecode(response.body);
-
-      if (responseData.isNotEmpty) {
-        if (responseData[0] is Map<String, dynamic>) {
-          final int state = responseData[0]['state'];
-          setState(() {
-            print(state);
-            _state = state;
-          });
-        } else {
-          setState(() {
-            _state = 0;
-          });
-        }
-      } else {
-        print('Error');
-      }
     }
   }
 
@@ -211,7 +184,7 @@ class _homeState extends State<home> {
               backgroundColor: Colors.green,
               textColor: Colors.white,
               fontSize: 16.0);
-          _getInitialState();
+          getUserInfo();
         } else {
           Fluttertoast.showToast(
               msg: "Error al ingresar hora de entrada",
@@ -241,7 +214,7 @@ class _homeState extends State<home> {
               backgroundColor: Colors.green,
               textColor: Colors.white,
               fontSize: 16.0);
-          _getInitialState();
+          getUserInfo();
         } else {
           Fluttertoast.showToast(
               msg: "Error al ingresar hora de salida",
@@ -277,7 +250,7 @@ class _homeState extends State<home> {
             backgroundColor: Colors.green,
             textColor: Colors.white,
             fontSize: 16.0);
-        _getInitialState();
+        getUserInfo();
       } else {
         Fluttertoast.showToast(
             msg: "Error al cambiar estado",
