@@ -14,6 +14,7 @@ class forms extends StatefulWidget {
   State<forms> createState() => _formsState();
 }
 
+// Funcion para transformar fracciones a decimales
 double transformFraction(String number) {
   if (number == "0") {
     return 0;
@@ -39,11 +40,13 @@ class _formsState extends State<forms> {
   final TextEditingController _unidadController = TextEditingController();
 
   String? tipo;
+  // Dropdown menu items
   List<Map<String, dynamic>> types = [
     {'label': 'Uso común', 'value': "Single_use"},
     {'label': 'Mantención', 'value': "Maintenance"},
     {'label': 'Reparación', 'value': "Repair"},
   ];
+  // Dropdown menu unidades posibles para el formulario
   List<Map<String, dynamic>> unit = [
     {'label': '0', 'value': "0"},
     {'label': '1/4', 'value': "1/4"},
@@ -53,7 +56,10 @@ class _formsState extends State<forms> {
     {'label': '3/4', 'value': "3/4"},
     {'label': '1', 'value': "1"},
   ];
+
   String? selectedWater, selectedFuel, selectedOil, selected;
+
+  // Funcion para validar que los formularios esten completos
   bool validarTodosLosFormularios() {
     bool todosLosFormulariosValidos = true;
     for (var formKey in [
@@ -72,9 +78,7 @@ class _formsState extends State<forms> {
   }
 
   // Dropdown menu items
-  final List<String> tipoItems = [
-    'Bitacora'
-  ]; //, 'Formulario 2', 'Formulario 3'];
+  final List<String> tipoItems = ['Bitacora'];
   final List<String> unidadItems = ['Unidad 1', 'Unidad 2', 'Unidad 3'];
 
   @override
@@ -84,6 +88,7 @@ class _formsState extends State<forms> {
   }
   // Validate the form
 
+  // Transformar valores si no son null y enviar el formulario a la API
   Future<void> sendpush() async {
     double? selectedOilR, selectedFuelR, selectedWaterR;
     selectedOil == null
@@ -92,14 +97,15 @@ class _formsState extends State<forms> {
     selectedWater == null
         ? selectedWaterR = null
         : selectedWaterR = transformFraction(selectedWater!);
-    selectedWater == null
-        ? selectedWaterR = null
-        : selectedWaterR = transformFraction(selectedWater!);
+    selectedFuel == null
+        ? selectedFuelR = null
+        : selectedFuelR = transformFraction(selectedFuel!);
     try {
       final response = await http.post(
         Uri.parse('http://${dotenv.env['BASE_URL']}:1522/logs'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer ${auth.token}',
         },
         body: jsonEncode(<String, dynamic>{
           "type": selected!,
@@ -111,14 +117,6 @@ class _formsState extends State<forms> {
           "fuel_level": selectedFuelR,
         }),
       );
-      /*final respondeTruck = await http.put(
-      Uri.parse(
-          'http://${dotenv.env['BASE_URL']}:5000/trucks/${_unidadController.text}'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, dynamic>{}),
-    );*/
       if (response.statusCode == 201) {
         Fluttertoast.showToast(
             msg: "Formulario enviado con exito",
@@ -134,26 +132,17 @@ class _formsState extends State<forms> {
     }
   }
 
-  /*void _submitForm() {
-    if (_formKeyAceite.currentState!.validate()) {
-      // La validación pasó correctamente
-
-      print('Form submitted successfully!');
-    } else {
-      print('Form validation failed.');
-    }
-  }*/
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      physics: BouncingScrollPhysics(),
+      physics: const BouncingScrollPhysics(),
       child: Center(
         child: Form(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
+                // Codigo si se requiere demas formularios
                 /*Container(
                   height: 60,
                   padding: EdgeInsets.only(left: 16.0, right: 16.0),
@@ -186,12 +175,12 @@ class _formsState extends State<forms> {
                   margin: EdgeInsets.only(left: 16.0, right: 16),
                   child: Column(
                     children: [
-                      // Unidad
+                      // Form para ver el seleccionar de la bitacora
                       Form(
                         key: _formKeytype,
                         child: DropdownButtonFormField<String>(
-                          decoration: InputDecoration(
-                            labelText: 'Tipo bitacora',
+                          decoration: const InputDecoration(
+                            labelText: 'Motivo de bitacora',
                           ),
                           value: selected,
                           items: types
@@ -213,12 +202,13 @@ class _formsState extends State<forms> {
                           },
                         ),
                       ),
+                      // Form unidad
                       Form(
                         key: _formKeyUnidad,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         child: TextFormField(
                           controller: _unidadController,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: 'Unidad',
                           ),
                           maxLines: 1,
@@ -233,16 +223,18 @@ class _formsState extends State<forms> {
                       // Observación
                       TextFormField(
                         controller: _observacionController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Observación',
                         ),
                         maxLines: 3,
                         maxLength: 255,
                       ),
+
+                      // Form para el nivel de combustible
                       Form(
                         key: _formKeyCombustible,
                         child: DropdownButtonFormField<String>(
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: "Nivel de Combustible",
                           ),
                           value: selectedFuel,
@@ -265,10 +257,12 @@ class _formsState extends State<forms> {
                           },
                         ),
                       ),
+
+                      // Form para el nivel de aceite
                       Form(
                         key: _formKeyAceite,
                         child: DropdownButtonFormField<String>(
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: "Nivel de Aceite",
                           ),
                           value: selectedOil,
@@ -291,10 +285,12 @@ class _formsState extends State<forms> {
                           },
                         ),
                       ),
+
+                      // Form para el nivel de agua
                       Form(
                         key: _formKeyAgua,
                         child: DropdownButtonFormField<String>(
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: "Nivel de Agua",
                           ),
                           value: selectedWater,

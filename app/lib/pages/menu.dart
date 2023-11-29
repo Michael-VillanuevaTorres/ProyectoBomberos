@@ -21,15 +21,18 @@ class MenuPage extends StatefulWidget {
 
 class _MenuPageState extends State<MenuPage> {
   int _currentIndex = 1;
+  late int idUser;
 
+  // Lista de Widget que representan las paginas principales de la APP
   final List<Widget> _pages = [
     // Aquí debes agregar las 3 páginas diferentes para cada opción de navegación
-    forms(),
+    const forms(),
     home(),
-    statistics(),
+    const statistics(),
     available(),
   ];
 
+  // Lista de Widget que representan los AppBars de cada página
   final List<PreferredSizeWidget> _appbar = [
     CustomAppBarAcceso(text: 'Formulario Bitacora'),
     CustomAppBarAcceso(text: 'Acceso'),
@@ -56,6 +59,7 @@ class _MenuPageState extends State<MenuPage> {
             _currentIndex = index;
           });
         },
+        // 4 navegaciones principales de la APP
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.edit_document),
@@ -88,14 +92,20 @@ class home extends StatefulWidget {
 }
 
 class _homeState extends State<home> {
+  late User usuario;
+  late int idUser;
+  //late Future<void> _initLoad;
+  //Globals.returnID(Globals.token);
   Auth auth = Auth();
   int _state = 0;
   //late Future<void> token;
   //Future<void> loadToken() async => await auth.loadToken();
   late User usuario;
 
+  // Obtener informacion importante a la hora de iniciar
   Future<void> getTokenInfo() async {
     await auth.loadToken();
+    idUser = returnId(auth.token);
     await getUserInfo();
   }
 
@@ -105,24 +115,22 @@ class _homeState extends State<home> {
   void initState() {
     super.initState();
     QrScanner(onQrCodeScanned: handleQrCodeScanned);
-    auth.loadToken();
     getTokenInfo();
   }
 
   Future<void> getUserInfo() async {
     try {
-      int idUser = returnId(auth.token);
       final response = await http.get(
         Uri.parse('http://${dotenv.env['BASE_URL']}:1522/user/${idUser}'),
         headers: <String, String>{
           'Content-Type': 'application/json',
-          //'Authorization': 'Bearer ${auth.token}',
+          'Authorization': 'Bearer ${auth.token}',
         },
       );
       if (response.statusCode == 200) {
         usuario = User.fromJson(json.decode(response.body));
 
-        // Almacena la información del usuario localmente
+        // Almacena la información del usuario en las shared preferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString('firstName', usuario.firstName);
         prefs.setString('email', usuario.email);
@@ -132,7 +140,6 @@ class _homeState extends State<home> {
         setState(() {
           _state = usuario.state;
         });
-
       }
     } catch (e) {
       throw Exception("Error al cargar usuario");
@@ -163,7 +170,6 @@ class _homeState extends State<home> {
   }
 
   Future<void> setTime(int type) async {
-    int idUser = returnId(auth.token);
     try {
       if (type == 1) {
         final response = await http.post(
@@ -177,7 +183,7 @@ class _homeState extends State<home> {
         );
         if (response.statusCode == 200) {
           Fluttertoast.showToast(
-              msg: "Hora Registrada con exito",
+              msg: "Entrada registrada con exito",
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.TOP,
               timeInSecForIosWeb: 1,
@@ -187,7 +193,7 @@ class _homeState extends State<home> {
           getUserInfo();
         } else {
           Fluttertoast.showToast(
-              msg: "Error al ingresar hora de entrada",
+              msg: "Error al registrar entrada",
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.TOP,
               timeInSecForIosWeb: 1,
@@ -207,7 +213,7 @@ class _homeState extends State<home> {
         );
         if (response.statusCode == 200) {
           Fluttertoast.showToast(
-              msg: "Hora Registrada con exito",
+              msg: "Salida registrada con exito",
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.TOP,
               timeInSecForIosWeb: 1,
@@ -217,7 +223,7 @@ class _homeState extends State<home> {
           getUserInfo();
         } else {
           Fluttertoast.showToast(
-              msg: "Error al ingresar hora de salida",
+              msg: "Error al registrar hora de salida",
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.TOP,
               timeInSecForIosWeb: 1,
@@ -227,12 +233,12 @@ class _homeState extends State<home> {
         }
       }
     } catch (e) {
-      throw Exception("Error al ingresar hora");
+      throw Exception("Error al ingresar registro");
     }
   }
 
+  // Llamada a API Cambiar estado de emergencia
   Future<void> setWarning() async {
-    int idUser = returnId(auth.token);
     try {
       final response = await http.put(
           Uri.parse(
@@ -262,8 +268,14 @@ class _homeState extends State<home> {
             fontSize: 16.0);
       }
     } catch (e) {
-      throw Exception("Error al ingresar hora");
+      throw Exception("Error cambiar estado");
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getTokenInfo();
   }
 
   @override

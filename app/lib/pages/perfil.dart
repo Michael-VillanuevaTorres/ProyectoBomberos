@@ -22,16 +22,19 @@ class _perfilState extends State<perfil> {
   String email = "";
   String userName = "";
   String role = "";
-  //String? firstName, lastName, email, userName, role; // = "";
-  bool _obscureTextone = true;
-  bool _obscureTexttwo = true;
+
+  bool _obscureTextActual = true;
+  final bool _obscureTextNew = true;
+  final bool _obscureTextNew2 = true;
   Auth auth = Auth();
+  // Controladores de los campos password
   TextEditingController current_password = TextEditingController();
   TextEditingController new_password = TextEditingController();
   TextEditingController rep_new_password = TextEditingController();
 
   bool editar = false;
 
+  // Llamada API para cambiar contraseña
   Future<void> changePassword(BuildContext context) async {
     try {
       final response = await http.post(
@@ -55,9 +58,10 @@ class _perfilState extends State<perfil> {
             backgroundColor: Colors.green,
             textColor: Colors.white,
             fontSize: 16.0);
+        // Si fue 200 que llama a logout para que se elimine el token, y limpiar token y navegar a la pantalla de login
         await logout(context);
-        await auth.clearToken();
-        Navigator.pushNamed(context, '/login');
+        //await auth.clearToken();
+        //Navigator.pushNamed(context, '/login');
       } else {
         Fluttertoast.showToast(
             msg: responseData['error'],
@@ -73,22 +77,24 @@ class _perfilState extends State<perfil> {
     }
   }
 
-  Widget sectionPassword(TextEditingController controller, String label) {
+  // Widget de los campos de texto de password
+  Widget sectionPassword(
+      TextEditingController controller, String label, bool obscureText) {
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.7,
       height: 60,
       child: TextFormField(
         controller: controller,
-        obscureText: _obscureTextone,
+        obscureText: _obscureTextActual,
         decoration: InputDecoration(
           suffixIcon: IconButton(
             icon: Icon(
-              _obscureTextone ? Icons.visibility : Icons.visibility_off,
+              _obscureTextActual ? Icons.visibility : Icons.visibility_off,
             ),
             onPressed: () {
               setState(() {
-                _obscureTextone =
-                    !_obscureTextone; // Cambia entre texto visible y oculto
+                _obscureTextActual =
+                    !_obscureTextActual; // Cambia entre texto visible y oculto
               });
             },
           ),
@@ -98,15 +104,18 @@ class _perfilState extends State<perfil> {
     );
   }
 
+  // Widget de la sección de cambiar contraseña
   Widget updatePassword(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          sectionPassword(current_password, "Contraseña Actual"),
-          sectionPassword(new_password, "Nueva Contraseña"),
-          sectionPassword(rep_new_password, "Repetir Nueva Contraseña"),
+          sectionPassword(
+              current_password, "Contraseña Actual", _obscureTextActual),
+          sectionPassword(new_password, "Nueva Contraseña", _obscureTextNew),
+          sectionPassword(
+              rep_new_password, "Repetir Nueva Contraseña", _obscureTextNew2),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: ElevatedButton(
@@ -116,10 +125,8 @@ class _perfilState extends State<perfil> {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
+              // Realiza una validacion de contraseñas antes de poder llamae a la API para cambiar contraseña
               onPressed: () async {
-                print("new password: ${new_password.text}");
-                print("new password: ${rep_new_password.text}");
-
                 if (new_password.text != rep_new_password.text) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -142,9 +149,9 @@ class _perfilState extends State<perfil> {
     );
   }
 
+  // Llamada API para cerrar sesión
   Future<void> logout(BuildContext context) async {
     Navigator.pushNamed(context, '/login');
-
     setState(
       () {
         _mostrarIndicadorCarga = true;
@@ -169,7 +176,8 @@ class _perfilState extends State<perfil> {
             backgroundColor: Colors.green,
             textColor: Colors.white,
             fontSize: 16.0);
-        //await auth.clearToken();
+        // Realizar accion de logout
+        await auth.clearToken();
         Navigator.pushNamed(context, '/login');
       } else {
         Fluttertoast.showToast(
@@ -193,6 +201,7 @@ class _perfilState extends State<perfil> {
     }
   }
 
+  // Obtener información del usuario desde shared preferences
   Future<void> _obtenerInformacion(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -239,21 +248,22 @@ class _perfilState extends State<perfil> {
                   //backgroundImage: NetworkImage(""), // insertar imagen de perfil
                 ),
               ),
+              // Mostrar en pantalla la información del usuario
               Container(
                 margin: const EdgeInsets.only(top: 20),
                 child: Text(
                   "$firstName $lastName",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
-              Container(
-                child: Text(
-                  role,
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                ),
+              Text(
+                role,
+                style:
+                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
               Container(
-                padding: EdgeInsets.only(left: 10),
+                padding: const EdgeInsets.only(left: 10),
                 alignment: Alignment.centerLeft,
                 width: MediaQuery.of(context).size.width * 0.8,
                 height: 35,
@@ -264,11 +274,12 @@ class _perfilState extends State<perfil> {
                 margin: const EdgeInsets.only(top: 20),
                 child: Text(
                   "Correo: $email",
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.bold),
                 ),
               ),
               Container(
-                padding: EdgeInsets.only(left: 10),
+                padding: const EdgeInsets.only(left: 10),
                 alignment: Alignment.centerLeft,
                 width: MediaQuery.of(context).size.width * 0.8,
                 height: 35,
@@ -279,11 +290,13 @@ class _perfilState extends State<perfil> {
                 margin: const EdgeInsets.only(top: 5),
                 child: Text(
                   "Usuario : $userName",
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.bold),
                 ),
               ),
+              // Seccion de cambiar comtraseña
               Container(
-                padding: EdgeInsets.only(left: 10),
+                padding: const EdgeInsets.only(left: 10),
                 alignment: Alignment.centerLeft,
                 width: MediaQuery.of(context).size.width * 0.8,
                 height: 35,
@@ -295,7 +308,7 @@ class _perfilState extends State<perfil> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    const Text(
                       "Cambiar contraseña",
                       style:
                           TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
@@ -309,15 +322,18 @@ class _perfilState extends State<perfil> {
                         }
                         setState(() {});
                       },
-                      child: !editar
-                          ? Icon(Icons.edit)
-                          : Icon(Icons.arrow_drop_up),
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          disabledBackgroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10))),
+                        backgroundColor: Colors.white,
+                        disabledBackgroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+
+                      // Mostrar en pantalla la opcion de cambiar contraseña, si el usuario lo deseo
+                      child: !editar
+                          ? const Icon(Icons.edit)
+                          : const Icon(Icons.arrow_drop_up),
                     ),
                   ],
                 ),
@@ -327,15 +343,15 @@ class _perfilState extends State<perfil> {
                 onPressed: () async {
                   await logout(context);
                 },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10))),
                 child: const Text("Cerrar Sesión",
                     style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
                         color: Colors.white)),
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10))),
               ),
               if (_mostrarIndicadorCarga) const CircularProgressIndicator()
             ],

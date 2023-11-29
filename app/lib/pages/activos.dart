@@ -32,7 +32,7 @@ class _availableState extends State<available> {
           "http://${dotenv.env['BASE_URL']}:1522/user/users_by_state/1"));
       activeUser = json.decode(responseActive.body);
 
-      //* OBTENER LOS BOMBEROS EN EMERGENCIA DESDE LA API
+      // Obtener los bomberos en emergencia desde la API
       final responseWarning = await http.get(Uri.parse(
           "http://${dotenv.env['BASE_URL']}:1522/user/users_by_state/2"));
       warningUser = json.decode(responseWarning.body);
@@ -90,7 +90,7 @@ class _availableState extends State<available> {
                 ),
                 onSelected: (String? value) {
                   setState(() {
-                    //* AL SELECCIONAR UN VALOR SE ACTUALIZA LA LISTA DE BOMBEROS
+                    // Al seleccionar un valor se actualiza la lista de bomberos
                     switch (value) {
                       case "Todos":
                         users = activeUser + warningUser;
@@ -116,7 +116,7 @@ class _availableState extends State<available> {
               ),
             ),
           ),
-          //* LISTAR BOMBEROS
+          // Lista de bomberos
           Expanded(
             child: FutureBuilder(
               future: _initLoad,
@@ -164,6 +164,8 @@ class _availableState extends State<available> {
 }
 
 class _stateBomberoState extends State<stateBombero> {*/
+
+// Widget que se muentra el bombero en la lista y su estado correspondiente
 Widget stateBombero(BuildContext context, User firefighter) {
   // User P = widget.firefighter;
   Color colorContainer;
@@ -173,7 +175,6 @@ Widget stateBombero(BuildContext context, User firefighter) {
     default:
       colorContainer = Colors.green;
   }
-
   return Center(
     child: Container(
       decoration: BoxDecoration(
