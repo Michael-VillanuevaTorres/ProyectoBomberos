@@ -92,7 +92,7 @@ class _perfilState extends State<perfil> {
               });
             },
           ),
-          labelText: "Contraseña Actual",
+          labelText: label,
         ),
       ),
     );
