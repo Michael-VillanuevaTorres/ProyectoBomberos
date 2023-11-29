@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:app/object/bitacora.dart';
 import 'package:app/pages/widget.dart';
+import 'package:app/token/accces_token-dart.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
@@ -19,11 +20,17 @@ class notification extends StatefulWidget {
 class _notificationState extends State<notification> {
   late List<dynamic> notifications;
   late Future<void> _initLoad;
+  Auth auth = Auth();
 
   Future<void> getNotificaciones() async {
     try {
-      final response = await http.get(Uri.parse(
-          "http://${dotenv.env['BASE_URL']}:1522/logs?description=0"));
+      final response = await http.get(
+        Uri.parse("http://${dotenv.env['BASE_URL']}:1522/logs?description=0"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer ${auth.token}',
+        },
+      );
       notifications = json.decode(response.body);
 
       if (response.statusCode == 200) {
@@ -87,10 +94,15 @@ class _notificationState extends State<notification> {
     );
   }
 
+  Future<void> getInfo() async {
+    await auth.loadToken();
+    await getNotificaciones();
+  }
+
   @override
   void initState() {
     super.initState();
-    _initLoad = getNotificaciones();
+    _initLoad = getInfo();
   }
 
   @override
