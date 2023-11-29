@@ -85,8 +85,6 @@ class _LoginState extends State<Login> {
     );
   }
 
-  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
-
   @override
   void initState() {
     super.initState();

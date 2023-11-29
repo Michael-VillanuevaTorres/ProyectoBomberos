@@ -20,15 +20,18 @@ class MenuPage extends StatefulWidget {
 
 class _MenuPageState extends State<MenuPage> {
   int _currentIndex = 1;
+  late int idUser;
 
+  // Lista de Widget que representan las paginas principales de la APP
   final List<Widget> _pages = [
     // Aquí debes agregar las 3 páginas diferentes para cada opción de navegación
-    forms(),
+    const forms(),
     home(),
-    statistics(),
+    const statistics(),
     available(),
   ];
 
+  // Lista de Widget que representan los AppBars de cada página
   final List<PreferredSizeWidget> _appbar = [
     CustomAppBarAcceso(text: 'Formulario Bitacora'),
     CustomAppBarAcceso(text: 'Acceso'),
@@ -55,6 +58,7 @@ class _MenuPageState extends State<MenuPage> {
             _currentIndex = index;
           });
         },
+        // 4 navegaciones principales de la APP
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.edit_document),
@@ -88,37 +92,34 @@ class home extends StatefulWidget {
 
 class _homeState extends State<home> {
   late User usuario;
+  late int idUser;
   //late Future<void> _initLoad;
   //Globals.returnID(Globals.token);
   Auth auth = Auth();
 
+  // Obtener informacion importante a la hora de iniciar
   Future<void> getTokenInfo() async {
     await auth.loadToken();
+    idUser = returnId(auth.token);
     await getUserInfo();
   }
 
   int warning = 2;
 
-  @override
-  void initState() {
-    super.initState();
-    getTokenInfo();
-  }
-
+  // Obtener informacion del usuario localmente
   Future<void> getUserInfo() async {
     try {
-      int idUser = returnId(auth.token);
       final response = await http.get(
-        Uri.parse('http://${dotenv.env['BASE_URL']}:5000/user/${idUser}'),
+        Uri.parse('http://${dotenv.env['BASE_URL']}:5000/user/$idUser'),
         headers: <String, String>{
           'Content-Type': 'application/json',
-          //'Authorization': 'Bearer ${auth.token}',
+          'Authorization': 'Bearer ${auth.token}',
         },
       );
       if (response.statusCode == 200) {
         usuario = User.fromJson(json.decode(response.body));
 
-        // Almacena la información del usuario localmente
+        // Almacena la información del usuario en las shared preferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString('firstName', usuario.firstName);
         prefs.setString('email', usuario.email);
@@ -131,8 +132,10 @@ class _homeState extends State<home> {
     }
   }
 
+  // Llamada a API para ingresar hora de entrada o salida del usuario
+  // type = 1 -> Entrada
+  // type = 2 -> Salida
   Future<void> setTime(int type) async {
-    int idUser = returnId(auth.token);
     try {
       if (type == 1) {
         final response = await http.post(
@@ -145,7 +148,7 @@ class _homeState extends State<home> {
         );
         if (response.statusCode == 200) {
           Fluttertoast.showToast(
-              msg: "Hora Registrada con exito",
+              msg: "Entrada registrada con exito",
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.TOP,
               timeInSecForIosWeb: 1,
@@ -154,7 +157,7 @@ class _homeState extends State<home> {
               fontSize: 16.0);
         } else {
           Fluttertoast.showToast(
-              msg: "Error al ingresar hora de entrada",
+              msg: "Error al registrar entrada",
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.TOP,
               timeInSecForIosWeb: 1,
@@ -174,7 +177,7 @@ class _homeState extends State<home> {
         );
         if (response.statusCode == 200) {
           Fluttertoast.showToast(
-              msg: "Hora Registrada con exito",
+              msg: "Salida registrada con exito",
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.TOP,
               timeInSecForIosWeb: 1,
@@ -183,7 +186,7 @@ class _homeState extends State<home> {
               fontSize: 16.0);
         } else {
           Fluttertoast.showToast(
-              msg: "Error al ingresar hora de salida",
+              msg: "Error al registrar hora de salida",
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.TOP,
               timeInSecForIosWeb: 1,
@@ -193,15 +196,15 @@ class _homeState extends State<home> {
         }
       }
     } catch (e) {
-      throw Exception("Error al ingresar hora");
+      throw Exception("Error al ingresar registro");
     }
   }
 
+  // Llamada a API Cambiar estado de emergencia
   Future<void> setWarning() async {
-    int idUser = returnId(auth.token);
     try {
       final response = await http.patch(
-        Uri.parse("http://${dotenv.env['BASE_URL']}:5000/user/${idUser}"),
+        Uri.parse("http://${dotenv.env['BASE_URL']}:5000/user/$idUser"),
         headers: <String, String>{
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${auth.token}',
@@ -228,8 +231,14 @@ class _homeState extends State<home> {
             fontSize: 16.0);
       }
     } catch (e) {
-      throw Exception("Error al ingresar hora");
+      throw Exception("Error cambiar estado");
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getTokenInfo();
   }
 
   @override
@@ -273,8 +282,8 @@ class _homeState extends State<home> {
                   () {},
                 );
               },
-              icon: Icon(Icons.warning, color: Colors.white, size: 30),
-              label: Text(
+              icon: const Icon(Icons.warning, color: Colors.white, size: 30),
+              label: const Text(
                 "Emergencia",
                 style: TextStyle(color: Colors.white, fontSize: 20),
               ),

@@ -107,9 +107,10 @@ class FirebaseApi {
         android: AndroidInitializationSettings("mipmap/ic_launcher"));
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
-      // Lo que se ejecutaá si el usuario toca la notificación
+      // Lo que se ejecuta si el usuario toca la notificación
       onDidReceiveNotificationResponse:
           (NotificationResponse notificationResponse) {
+        // Se envia a la pantalla notificaciones y
         navigatorKey.currentState?.pushNamed(notification.route);
         showAlertDialog(notificationResponse.payload!);
       },
@@ -132,6 +133,7 @@ class FirebaseApi {
 void showAlertDialog(String? payload) {
   Map<String, dynamic> jsonMap = json.decode(payload!);
 
+  // Al enviar notifiacion y ckickearla, se muestra un dialogo con la información de la notificación
   showDialog(
     context: navigatorKey.currentContext!,
     builder: (context) {
