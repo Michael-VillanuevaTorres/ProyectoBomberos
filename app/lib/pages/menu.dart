@@ -98,9 +98,6 @@ class _homeState extends State<home> {
   //Globals.returnID(Globals.token);
   Auth auth = Auth();
   int _state = 0;
-  //late Future<void> token;
-  //Future<void> loadToken() async => await auth.loadToken();
-  late User usuario;
 
   // Obtener informacion importante a la hora de iniciar
   Future<void> getTokenInfo() async {
@@ -110,13 +107,6 @@ class _homeState extends State<home> {
   }
 
   int warning = 2;
-
-  @override
-  void initState() {
-    super.initState();
-    QrScanner(onQrCodeScanned: handleQrCodeScanned);
-    getTokenInfo();
-  }
 
   Future<void> getUserInfo() async {
     try {
@@ -275,6 +265,7 @@ class _homeState extends State<home> {
   @override
   void initState() {
     super.initState();
+    QrScanner(onQrCodeScanned: handleQrCodeScanned);
     getTokenInfo();
   }
 

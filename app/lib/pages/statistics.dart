@@ -6,6 +6,8 @@ import 'package:pie_chart/pie_chart.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
+import 'package:app/token/accces_token-dart.dart';
+import 'package:app/pages/widget.dart';
 
 class statistics extends StatefulWidget {
   const statistics({Key? key}) : super(key: key);
@@ -18,6 +20,8 @@ class _statisticsState extends State<statistics> {
   late DateTimes _statsweek;
   late DateTimes _stats;
   late DateTimes _statsmonth;
+  Auth auth=Auth();
+  late int idUser;
 
   // Método para convertir el tiempo de formato HH:MM:SS a horas
   double timetoHour(String totalHoursWorked) {
@@ -28,17 +32,24 @@ class _statisticsState extends State<statistics> {
     return suma;
   }
 
+  Future<void> getToken() async {
+    await auth.loadToken();
+    idUser = returnId(auth.token);
+    await getStadistics();
+  }
+
   // Inicializacion de la carga de datos
   late Future<void> _initLoad;
 
   // Método para obtener estadísticas desde la API y almacenarlas en variables para no pedirlas cada vez que se cambie de período
   Future<void> getStadistics() async {
     try {
+      print (idUser);
       // Obtener estadísticas de la última semana y del último mes
       final responseweek = await http.get(Uri.parse(
-          'http://${dotenv.env['BASE_URL']}:1522/entrytime/summary/1/7'));
+          'http://${dotenv.env['BASE_URL']}:1522/entrytime/summary/${idUser}/7'));
       final responsemonth = await http.get(Uri.parse(
-          'http://${dotenv.env['BASE_URL']}:1522/entrytime/summary/1/30'));
+          'http://${dotenv.env['BASE_URL']}:1522/entrytime/summary/${idUser}/30'));
       if (responseweek.statusCode == 200 && responsemonth.statusCode == 200) {
         _statsweek = DateTimes.fromJson(json.decode(responseweek.body));
         _stats = _statsweek;
@@ -49,17 +60,16 @@ class _statisticsState extends State<statistics> {
     }
   }
 
-  // Método llamado al iniciar el estado del widget
   @override
   void initState() {
     super.initState();
-    _initLoad = getStadistics();
+    _initLoad = getToken();
   }
 
   // Lista de opciones para un menú desplegable
   List<String> list = <String>['Última Semana', 'Último mes'];
   String dropdownValue = "";
-  final double total = 0.0001;
+  final double total = 40;
   double? ready;
 
   final colorList = <Color>[Colors.greenAccent, Colors.redAccent];
