@@ -48,20 +48,19 @@ class _LoginState extends State<Login> {
     return FutureBuilder<AccessToken>(
       future: _futureToken,
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          authProvider
-              .saveToken(snapshot.data!.accessToken)
-              .then((value) => authProvider.loadToken())
-              .then((value) => {
-                    getUserInfo(),
-                  });
-
-          WidgetsBinding.instance.addPostFrameCallback((_) =>
-              Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => MenuPage()),
-                  (Route<dynamic> route) => false));
-
-          return const Text("Cargando...");
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasData) {
+            authProvider
+                .saveToken(snapshot.data!.accessToken)
+                .then((value) => authProvider.loadToken())
+                .then((value) => {
+                      getUserInfo(),
+                    })
+                .then((value) => Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => MenuPage()),
+                    (Route<dynamic> route) => false));
+            return const Text("Cargando...");
+          }
         } else if (snapshot.hasError) {
           return seccionEnviar("Error de Credenciales");
         }

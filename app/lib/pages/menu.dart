@@ -209,6 +209,7 @@ class _homeState extends State<home> {
   @override
   void initState() {
     super.initState();
+    auth.loadToken().then((value) => idUser = returnId(auth.token));
   }
 
   @override
