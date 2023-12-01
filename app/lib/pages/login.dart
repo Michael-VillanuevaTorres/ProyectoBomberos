@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:app/object/users.dart';
+import 'package:app/pages/widget.dart';
 import 'package:app/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:app/token/accces_token-dart.dart';
@@ -7,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:app/pages/menu.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -17,6 +20,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   final _formKey = GlobalKey<FormState>();
   TextEditingController loginController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -45,8 +49,13 @@ class _LoginState extends State<Login> {
       future: _futureToken,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          authProvider.saveToken(snapshot.data!.accessToken);
-          authProvider.loadToken();
+          authProvider
+              .saveToken(snapshot.data!.accessToken)
+              .then((value) => authProvider.loadToken())
+              .then((value) => {
+                    getUserInfo(),
+                  });
+
           WidgetsBinding.instance.addPostFrameCallback((_) =>
               Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => MenuPage()),
@@ -61,11 +70,41 @@ class _LoginState extends State<Login> {
     );
   }
 
+  Future<void> getUserInfo() async {
+    late User usuario;
+
+    try {
+      //authProvider.loadToken();
+      int idUser = returnId(authProvider.token);
+      print("ID USER: " + idUser.toString());
+      SharedPreferences prefs = await _prefs;
+      final response = await http.get(
+        Uri.parse('http://${dotenv.env['BASE_URL']}:5000/user/$idUser'),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${authProvider.token}',
+        },
+      );
+      print("Body ${response.body}");
+      if (response.statusCode == 200) {
+        usuario = User.fromJson(json.decode(response.body));
+        // Almacena la información del usuario en las shared preferences
+        prefs.setString('firstName', usuario.firstName);
+        prefs.setString('email', usuario.email);
+        prefs.setString('lastName', usuario.lastName);
+        prefs.setString('role', usuario.role);
+        prefs.setString('userName', usuario.userName);
+      }
+    } catch (e) {
+      throw Exception("Error al cargar usuario");
+    }
+  }
+
   Widget seccionEnviar(String msg) {
     return Column(
       children: [
         ElevatedButton(
-          onPressed: () {
+          onPressed: () async {
             if (_formKey.currentState!.validate()) {
               setState(() {
                 Future.delayed(Duration.zero, () {

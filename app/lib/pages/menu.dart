@@ -91,46 +91,17 @@ class home extends StatefulWidget {
 }
 
 class _homeState extends State<home> {
-  late User usuario;
+  //late User usuario;
   late int idUser;
   //late Future<void> _initLoad;
   //Globals.returnID(Globals.token);
   Auth auth = Auth();
 
   // Obtener informacion importante a la hora de iniciar
-  Future<void> getTokenInfo() async {
-    await auth.loadToken();
-    idUser = returnId(auth.token);
-    await getUserInfo();
-  }
 
   int warning = 2;
 
   // Obtener informacion del usuario localmente
-  Future<void> getUserInfo() async {
-    try {
-      final response = await http.get(
-        Uri.parse('http://${dotenv.env['BASE_URL']}:5000/user/$idUser'),
-        headers: <String, String>{
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${auth.token}',
-        },
-      );
-      if (response.statusCode == 200) {
-        usuario = User.fromJson(json.decode(response.body));
-
-        // Almacena la información del usuario en las shared preferences
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setString('firstName', usuario.firstName);
-        prefs.setString('email', usuario.email);
-        prefs.setString('lastName', usuario.lastName);
-        prefs.setString('role', usuario.role);
-        prefs.setString('userName', usuario.userName);
-      }
-    } catch (e) {
-      throw Exception("Error al cargar usuario");
-    }
-  }
 
   // Llamada a API para ingresar hora de entrada o salida del usuario
   // type = 1 -> Entrada
@@ -238,7 +209,6 @@ class _homeState extends State<home> {
   @override
   void initState() {
     super.initState();
-    getTokenInfo();
   }
 
   @override
