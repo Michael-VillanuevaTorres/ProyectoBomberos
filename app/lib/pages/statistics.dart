@@ -1,6 +1,8 @@
 import 'package:app/main.dart';
 import 'package:app/object/stadistic.dart';
 import 'package:app/pages/register.dart';
+import 'package:app/pages/widget.dart';
+import 'package:app/token/accces_token-dart.dart';
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:http/http.dart' as http;
@@ -18,7 +20,8 @@ class _statisticsState extends State<statistics> {
   late DateTimes _statsweek;
   late DateTimes _stats;
   late DateTimes _statsmonth;
-
+  Auth auth = Auth();
+  late int idUser;
   // Método para convertir el tiempo de formato HH:MM:SS a horas
   double timetoHour(String totalHoursWorked) {
     List<String> s = _stats.totalHoursWorked.split(":");
@@ -36,9 +39,9 @@ class _statisticsState extends State<statistics> {
     try {
       // Obtener estadísticas de la última semana y del último mes
       final responseweek = await http.get(Uri.parse(
-          'http://${dotenv.env['BASE_URL']}:5000/entrytime/summary/1/7'));
+          'http://${dotenv.env['BASE_URL']}:5000/entrytime/summary/$idUser/7'));
       final responsemonth = await http.get(Uri.parse(
-          'http://${dotenv.env['BASE_URL']}:5000/entrytime/summary/1/30'));
+          'http://${dotenv.env['BASE_URL']}:5000/entrytime/summary/$idUser/30'));
       if (responseweek.statusCode == 200 && responsemonth.statusCode == 200) {
         _statsweek = DateTimes.fromJson(json.decode(responseweek.body));
         _stats = _statsweek;
@@ -49,11 +52,18 @@ class _statisticsState extends State<statistics> {
     }
   }
 
+  Future<void> getToken() async {
+    await auth.loadToken();
+    idUser = returnId(auth.token);
+
+    await getStadistics();
+  }
+
   // Método llamado al iniciar el estado del widget
   @override
   void initState() {
     super.initState();
-    _initLoad = getStadistics();
+    _initLoad = getToken();
   }
 
   // Lista de opciones para un menú desplegable
