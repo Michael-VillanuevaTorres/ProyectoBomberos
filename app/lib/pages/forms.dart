@@ -102,7 +102,7 @@ class _formsState extends State<forms> {
         : selectedFuelR = transformFraction(selectedFuel!);
     try {
       final response = await http.post(
-        Uri.parse('http://${dotenv.env['BASE_URL']}:5000/logs'),
+        Uri.parse('http://${dotenv.env['BASE_URL']}/logs'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer ${auth.token}',

@@ -39,31 +39,37 @@ class _statisticsState extends State<statistics> {
     try {
       // Obtener estadísticas de la última semana y del último mes
       final responseweek = await http.get(Uri.parse(
-          'http://${dotenv.env['BASE_URL']}:5000/entrytime/summary/$idUser/7'));
+          'http://${dotenv.env['BASE_URL']}/entrytime/summary/$idUser/7'));
       final responsemonth = await http.get(Uri.parse(
-          'http://${dotenv.env['BASE_URL']}:5000/entrytime/summary/$idUser/30'));
+          'http://${dotenv.env['BASE_URL']}/entrytime/summary/$idUser/30'));
       if (responseweek.statusCode == 200 && responsemonth.statusCode == 200) {
-        _statsweek = DateTimes.fromJson(json.decode(responseweek.body));
-        _stats = _statsweek;
-        _statsmonth = DateTimes.fromJson(json.decode(responsemonth.body));
+        setState(() {
+          _statsweek = DateTimes.fromJson(json.decode(responseweek.body));
+          _stats = _statsweek;
+          _statsmonth = DateTimes.fromJson(json.decode(responsemonth.body));
+        });
       }
     } catch (e) {
       throw Exception(e);
     }
   }
 
-  Future<void> getToken() async {
+  /*Future<void> getToken() async {
     await auth.loadToken();
     idUser = returnId(auth.token);
 
     await getStadistics();
-  }
+  }*/
 
   // Método llamado al iniciar el estado del widget
   @override
   void initState() {
     super.initState();
-    _initLoad = getToken();
+    _initLoad = () async {
+      await auth.loadToken();
+      idUser = returnId(auth.token);
+      await getStadistics();
+    }();
   }
 
   // Lista de opciones para un menú desplegable

@@ -110,7 +110,7 @@ class _homeState extends State<home> {
     try {
       if (type == 1) {
         final response = await http.post(
-          Uri.parse('http://${dotenv.env['BASE_URL']}:5000/entrytime/'),
+          Uri.parse('http://${dotenv.env['BASE_URL']}/entrytime/'),
           headers: <String, String>{
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ${auth.token}',
@@ -139,7 +139,7 @@ class _homeState extends State<home> {
       } else {
         final response = await http.post(
           Uri.parse(
-              'http://${dotenv.env['BASE_URL']}:5000/exittime/'), //Uri.parse('http://127.0.0.1:5000/api/v1/fecha'),
+              'http://${dotenv.env['BASE_URL']}/exittime/'), //Uri.parse('http://127.0.0.1/api/v1/fecha'),
           headers: <String, String>{
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ${auth.token}',
@@ -175,7 +175,7 @@ class _homeState extends State<home> {
   Future<void> setWarning() async {
     try {
       final response = await http.patch(
-        Uri.parse("http://${dotenv.env['BASE_URL']}:5000/user/$idUser"),
+        Uri.parse("http://${dotenv.env['BASE_URL']}/user/$idUser"),
         headers: <String, String>{
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${auth.token}',

@@ -26,7 +26,7 @@ class _notificationState extends State<notification> {
   Future<void> getNotificaciones() async {
     try {
       final response = await http.get(
-        Uri.parse("http://${dotenv.env['BASE_URL']}:5000/logs?description=0"),
+        Uri.parse("http://${dotenv.env['BASE_URL']}/logs?description=0"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer ${auth.token}',
@@ -104,6 +104,7 @@ class _notificationState extends State<notification> {
   @override
   void initState() {
     super.initState();
+    //auth.loadToken().then((value) => _initLoad = getNotificaciones());
     _initLoad = getToken();
   }
 

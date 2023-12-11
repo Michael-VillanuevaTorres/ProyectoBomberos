@@ -4,7 +4,6 @@ import 'package:app/pages/widget.dart';
 import 'package:app/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:app/token/accces_token-dart.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:app/pages/menu.dart';
@@ -30,7 +29,7 @@ class _LoginState extends State<Login> {
 
   Future<AccessToken> validar(String user_name, String password) async {
     final response = await http.post(
-      Uri.parse('http://${dotenv.env['BASE_URL']}:5000/user/login'),
+      Uri.parse('http://${dotenv.env['BASE_URL']}/user/login'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -48,19 +47,18 @@ class _LoginState extends State<Login> {
     return FutureBuilder<AccessToken>(
       future: _futureToken,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.hasData) {
-            authProvider
-                .saveToken(snapshot.data!.accessToken)
-                .then((value) => authProvider.loadToken())
-                .then((value) => {
-                      getUserInfo(),
-                    })
-                .then((value) => Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => MenuPage()),
-                    (Route<dynamic> route) => false));
-            return const Text("Cargando...");
-          }
+        if (snapshot.hasData) {
+          () async {
+            await authProvider.saveToken(snapshot.data!.accessToken);
+            await authProvider.loadToken();
+            await getUserInfo();
+          }();
+          WidgetsBinding.instance.addPostFrameCallback((_) =>
+              Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => MenuPage()),
+                  (Route<dynamic> route) => false));
+
+          return const Text("Cargando...");
         } else if (snapshot.hasError) {
           return seccionEnviar("Error de Credenciales");
         }
@@ -76,9 +74,10 @@ class _LoginState extends State<Login> {
       //authProvider.loadToken();
       int idUser = returnId(authProvider.token);
       print("ID USER: " + idUser.toString());
+      print("TOKEN: " + authProvider.token.toString());
       SharedPreferences prefs = await _prefs;
       final response = await http.get(
-        Uri.parse('http://${dotenv.env['BASE_URL']}:5000/user/$idUser'),
+        Uri.parse('http://${dotenv.env['BASE_URL']}/user/$idUser'),
         headers: <String, String>{
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${authProvider.token}',
@@ -93,6 +92,11 @@ class _LoginState extends State<Login> {
         prefs.setString('lastName', usuario.lastName);
         prefs.setString('role', usuario.role);
         prefs.setString('userName', usuario.userName);
+        if (usuario.image != null) {
+          prefs.setString('image', usuario.image!);
+        } else {
+          prefs.setString('image', "");
+        }
       }
     } catch (e) {
       throw Exception("Error al cargar usuario");
@@ -105,12 +109,9 @@ class _LoginState extends State<Login> {
         ElevatedButton(
           onPressed: () async {
             if (_formKey.currentState!.validate()) {
-              setState(() {
-                Future.delayed(Duration.zero, () {
-                  _futureToken =
-                      validar(loginController.text, passwordController.text);
-                });
-              });
+              _futureToken =
+                  validar(loginController.text, passwordController.text);
+              setState(() {});
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Ingrese todos sus datos')));
