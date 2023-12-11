@@ -4,6 +4,7 @@ class User {
   String email;
   String firstName;
   int id;
+  String? image;
   String lastName;
   String role;
   int state;
@@ -13,6 +14,7 @@ class User {
     required this.email,
     required this.firstName,
     required this.id,
+    required this.image,
     required this.lastName,
     required this.role,
     required this.state,
@@ -27,6 +29,7 @@ class User {
         email: json["email"],
         firstName: json["first_name"],
         id: json["id"],
+        image: json["image"],
         lastName: json["last_name"],
         role: json["role"],
         state: json["state"],
@@ -37,6 +40,7 @@ class User {
         "email": email,
         "first_name": firstName,
         "id": id,
+        "image": image,
         "last_name": lastName,
         "role": role,
         "state": state,

@@ -105,6 +105,7 @@ class _notificationState extends State<notification> {
   @override
   void initState() {
     super.initState();
+    //auth.loadToken().then((value) => _initLoad = getNotificaciones());
     _initLoad = getToken();
   }
 

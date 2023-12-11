@@ -92,7 +92,7 @@ class home extends StatefulWidget {
 }
 
 class _homeState extends State<home> {
-  late User usuario;
+  //late User usuario;
   late int idUser;
   //late Future<void> _initLoad;
   //Globals.returnID(Globals.token);
@@ -100,11 +100,6 @@ class _homeState extends State<home> {
   int _state = 0;
 
   // Obtener informacion importante a la hora de iniciar
-  Future<void> getTokenInfo() async {
-    await auth.loadToken();
-    idUser = returnId(auth.token);
-    await getUserInfo();
-  }
 
   int warning = 2;
 
@@ -266,7 +261,7 @@ class _homeState extends State<home> {
   void initState() {
     super.initState();
     QrScanner(onQrCodeScanned: handleQrCodeScanned);
-    getTokenInfo();
+    auth.loadToken().then((value) => idUser = returnId(auth.token));
   }
 
   @override

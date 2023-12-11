@@ -48,6 +48,8 @@ dependencies:
   provider: ^6.1.1
   qr_code_scanner: ^1.0.1
   shared_preferences: ^2.2.2
+  image_picker: ^1.0.4
+  flutter_native_image: ^0.0.6
 
 dev_dependencies:
   flutter_test:
@@ -74,6 +76,8 @@ flutter:
   assets:
     - assets/escudo-2.png
     - lib/.env
+    - assets/bombero.png
+
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

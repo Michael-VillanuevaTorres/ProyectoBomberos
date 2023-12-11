@@ -27,6 +27,7 @@ class _availableState extends State<available> {
   // Option : 0 -> Todos, 1 -> Activos, 2 -> Emergencia
   Future<void> getUser(int option) async {
     try {
+      Future.delayed(const Duration(seconds: 5));
       // Obtener bomberos activos mediante la API
       final responseActive = await http.get(Uri.parse(
           "http://${dotenv.env['BASE_URL']}:1522/user/users_by_state/1"));
@@ -57,7 +58,9 @@ class _availableState extends State<available> {
   @override
   void initState() {
     super.initState();
-    _initLoad = getUser(0);
+    _initLoad = () async {
+      await getUser(0);
+    }();
   }
 
 // lista de opciones del dropdown
@@ -189,10 +192,22 @@ Widget stateBombero(BuildContext context, User firefighter) {
         children: [
           Container(
             margin: const EdgeInsets.only(left: 10, right: 20),
-            child: const CircleAvatar(
-              maxRadius: 20,
-              backgroundImage: NetworkImage(""), // insertar imagen de perfil
-            ),
+            child: firefighter.image != null
+                ? Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        fit: BoxFit.fitWidth,
+                        image: MemoryImage(base64Decode(firefighter.image!)),
+                      ),
+                    ),
+                  )
+                : const CircleAvatar(
+                    radius: 15,
+                    backgroundImage: AssetImage('assets/bombero.png'),
+                  ),
           ),
           Expanded(
             child: Container(
