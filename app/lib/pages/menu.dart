@@ -92,7 +92,7 @@ class home extends StatefulWidget {
 }
 
 class _homeState extends State<home> {
-  //late User usuario;
+  late User usuario;
   late int idUser;
   //late Future<void> _initLoad;
   //Globals.returnID(Globals.token);
