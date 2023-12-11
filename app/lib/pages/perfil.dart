@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:app/pages/widget.dart';
 import 'package:app/token/accces_token-dart.dart';
 import 'package:flutter/material.dart';
 import 'package:app/utils/colors.dart';
@@ -6,6 +8,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_native_image/flutter_native_image.dart';
+import 'package:image_picker/image_picker.dart';
 
 class perfil extends StatefulWidget {
   const perfil({super.key});
@@ -22,23 +26,103 @@ class _perfilState extends State<perfil> {
   String email = "";
   String userName = "";
   String role = "";
+  String image = "";
 
   bool _obscureTextActual = true;
   final bool _obscureTextNew = true;
   final bool _obscureTextNew2 = true;
   Auth auth = Auth();
+  late int idUser;
+
   // Controladores de los campos password
   TextEditingController current_password = TextEditingController();
   TextEditingController new_password = TextEditingController();
   TextEditingController rep_new_password = TextEditingController();
 
   bool editar = false;
+  //File? imagen;
+
+  String? imagePath1;
+
+  final picker = ImagePicker();
+
+  Future<void> pickMedia(ImageSource source) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    XFile? file;
+    file = await ImagePicker().pickImage(source: source);
+    if (file != null) {
+      imagePath1 = file.path;
+      await updateImg();
+    }
+  }
+
+  Image imagenFromBase64(String s) {
+    return Image.memory(base64Decode(s));
+  }
+
+  String imageToBase64(String imagePath) {
+    File imageFile = File(imagePath);
+
+    if (!imageFile.existsSync()) {
+      print('La imagen no existe en la ruta proporcionada.');
+      return "";
+    }
+
+    List<int> imageBytes = imageFile.readAsBytesSync();
+    String base64Image = base64Encode(imageBytes);
+
+    return base64Image;
+  }
+
+  Future<String> toBase64C(String ruta) async {
+    if (ruta.isNotEmpty) {
+      ImageProperties properties =
+          await FlutterNativeImage.getImageProperties(ruta);
+      File compressedFile = await FlutterNativeImage.compressImage(ruta,
+          quality: 65,
+          targetWidth: 400,
+          targetHeight: (properties.height! * 400 / properties.width!).round());
+      final bytes = await compressedFile.readAsBytes();
+      String img64 = base64Encode(bytes);
+      return img64;
+    } else {
+      return "";
+    }
+  }
+
+  Future<void> updateImg() async {
+    String img_64 = "";
+
+    if (imagePath1 != null) {
+      img_64 = await toBase64C(imagePath1!);
+    }
+
+    try {
+      final response = await http.put(
+        Uri.parse("http://${dotenv.env['BASE_URL']}/user/${idUser}/image"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer ${auth.token}',
+        },
+        body: jsonEncode(<String, dynamic>{"image": img_64}),
+      );
+      if (response.statusCode == 200) {
+        image = img_64;
+        print("imagen ingresada");
+      } else {
+        print("Error al crear reporte");
+      }
+    } catch (error) {
+      throw Exception(error);
+    }
+  }
 
   // Llamada API para cambiar contraseña
   Future<void> changePassword(BuildContext context) async {
     try {
       final response = await http.post(
-        Uri.parse('http://${dotenv.env['BASE_URL']}:5000/user/change-password'),
+        Uri.parse('http://${dotenv.env['BASE_URL']}/user/change-password'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer ${auth.token}',
@@ -160,7 +244,7 @@ class _perfilState extends State<perfil> {
     print("token logout: ${auth.token}");
     try {
       final response = await http.post(
-        Uri.parse('http://${dotenv.env['BASE_URL']}:5000/user/logout'),
+        Uri.parse('http://${dotenv.env['BASE_URL']}/user/logout'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer ${auth.token}',
@@ -210,13 +294,18 @@ class _perfilState extends State<perfil> {
       email = prefs.getString('email')!;
       role = prefs.getString('role')!;
       userName = prefs.getString('userName')!;
+      image = prefs.getString('image')!;
     });
   }
 
   @override
   void initState() {
     super.initState();
-    auth.loadToken();
+    () async {
+      await auth.loadToken();
+      idUser = returnId(auth.token);
+      //await _obtenerInformacion(context);
+    }();
     _obtenerInformacion(context);
   }
 
@@ -241,12 +330,48 @@ class _perfilState extends State<perfil> {
         child: Center(
           child: Column(
             children: [
-              Container(
-                margin: const EdgeInsets.only(left: 10, right: 20, top: 20),
-                child: const CircleAvatar(
-                  maxRadius: 100,
-                  //backgroundImage: NetworkImage(""), // insertar imagen de perfil
-                ),
+              Stack(
+                children: [
+                  image != ""
+                      ? Container(
+                          margin: EdgeInsets.only(top: 20),
+                          width: 200,
+                          height: 200,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              fit: BoxFit.fitWidth,
+                              image: MemoryImage(base64Decode(image)),
+                            ),
+                          ),
+                        )
+                      : Container(
+                          margin: EdgeInsets.only(top: 20),
+                          width: 200,
+                          height: 200,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white, // Color del círculo
+                          ),
+                        ),
+                  Positioned(
+                    bottom: 0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white, // Color del círculo
+                      ),
+                      margin: const EdgeInsets.only(left: 150, top: 150),
+                      child: IconButton(
+                        onPressed: () async {
+                          await pickMedia(ImageSource.camera);
+                          setState(() {});
+                        },
+                        icon: const Icon(Icons.camera_alt),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               // Mostrar en pantalla la información del usuario
               Container(
