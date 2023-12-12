@@ -260,8 +260,10 @@ class _homeState extends State<home> {
   @override
   void initState() {
     super.initState();
+
     QrScanner(onQrCodeScanned: handleQrCodeScanned);
     auth.loadToken().then((value) => idUser = returnId(auth.token));
+
   }
 
   @override

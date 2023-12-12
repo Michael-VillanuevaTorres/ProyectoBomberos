@@ -78,7 +78,7 @@ class _perfilState extends State<perfil> {
   Future<String> toBase64C(String ruta) async {
     if (ruta.isNotEmpty) {
       ImageProperties properties =
-          await FlutterNativeImage.getImageProperties(ruta);
+      await FlutterNativeImage.getImageProperties(ruta);
       File compressedFile = await FlutterNativeImage.compressImage(ruta,
           quality: 65,
           targetWidth: 400,
@@ -122,7 +122,7 @@ class _perfilState extends State<perfil> {
   Future<void> changePassword(BuildContext context) async {
     try {
       final response = await http.post(
-        Uri.parse('http://${dotenv.env['BASE_URL']}:1522/user/change-password'),
+        Uri.parse('http://${dotenv.env['BASE_URL']}/user/change-password'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer ${auth.token}',
@@ -178,7 +178,7 @@ class _perfilState extends State<perfil> {
             onPressed: () {
               setState(() {
                 _obscureTextActual =
-                    !_obscureTextActual; // Cambia entre texto visible y oculto
+                !_obscureTextActual; // Cambia entre texto visible y oculto
               });
             },
           ),
@@ -237,14 +237,14 @@ class _perfilState extends State<perfil> {
   Future<void> logout(BuildContext context) async {
     Navigator.pushNamed(context, '/login');
     setState(
-      () {
+          () {
         _mostrarIndicadorCarga = true;
       },
     );
     print("token logout: ${auth.token}");
     try {
       final response = await http.post(
-        Uri.parse('http://${dotenv.env['BASE_URL']}:1522/user/logout'),
+        Uri.parse('http://${dotenv.env['BASE_URL']}/user/logout'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer ${auth.token}',
@@ -278,7 +278,7 @@ class _perfilState extends State<perfil> {
     } finally {
       // Oculta el indicador de carga después de la solicitud
       setState(
-        () {
+            () {
           _mostrarIndicadorCarga = false;
         },
       );
@@ -334,26 +334,26 @@ class _perfilState extends State<perfil> {
                 children: [
                   image != ""
                       ? Container(
-                          margin: EdgeInsets.only(top: 20),
-                          width: 200,
-                          height: 200,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            image: DecorationImage(
-                              fit: BoxFit.fitWidth,
-                              image: MemoryImage(base64Decode(image)),
-                            ),
-                          ),
-                        )
+                    margin: EdgeInsets.only(top: 20),
+                    width: 200,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        fit: BoxFit.fitWidth,
+                        image: MemoryImage(base64Decode(image)),
+                      ),
+                    ),
+                  )
                       : Container(
-                          margin: EdgeInsets.only(top: 20),
-                          width: 200,
-                          height: 200,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white, // Color del círculo
-                          ),
-                        ),
+                    margin: EdgeInsets.only(top: 20),
+                    width: 200,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white, // Color del círculo
+                    ),
+                  ),
                   Positioned(
                     bottom: 0,
                     child: Container(
@@ -385,7 +385,7 @@ class _perfilState extends State<perfil> {
               Text(
                 role,
                 style:
-                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
               Container(
                 padding: const EdgeInsets.only(left: 10),
@@ -436,7 +436,7 @@ class _perfilState extends State<perfil> {
                     const Text(
                       "Cambiar contraseña",
                       style:
-                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                     ElevatedButton(
                       onPressed: () {
