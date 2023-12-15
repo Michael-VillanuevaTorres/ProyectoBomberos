@@ -263,7 +263,6 @@ class _homeState extends State<home> {
 
     QrScanner(onQrCodeScanned: handleQrCodeScanned);
     auth.loadToken().then((value) => idUser = returnId(auth.token));
-
   }
 
   @override

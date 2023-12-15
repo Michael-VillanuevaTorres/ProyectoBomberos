@@ -124,7 +124,7 @@ class FirebaseApi {
   // Método para inicializar las notificaciones
   Future<void> initNotification() async {
     await firebaseMessaging.requestPermission();
-    firebaseMessaging.getToken().then((value) => print(value));
+    firebaseMessaging.getToken().then((value) => print("assadasdasd:"+ value.toString()));
     initPushNotification();
     initLocation();
   }
